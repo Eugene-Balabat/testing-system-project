@@ -1,5 +1,15 @@
+import 'bootstrap/dist/css/bootstrap.min.css'
+import AppRoutes from './app-router'
+import { BrowserRouter } from 'react-router-dom'
+
+import './stylesheets/custom-bootstrap.css'
+
 function App() {
-  return <div className='App'></div>
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  )
 }
 
 export default App
