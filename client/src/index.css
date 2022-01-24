@@ -1,6 +1,5 @@
 html,
 body,
-.container,
 #root {
   min-height: 100%;
   height: 100%;
@@ -32,4 +31,25 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.grid {
+  display: grid;
+  grid-template-areas:
+    'header'
+    'main'
+    'footer';
+  grid-template-rows: auto 1fr auto;
+}
+
+.grid > Header {
+  grid-area: header;
+}
+
+.grid > Outlet {
+  grid-area: main;
+}
+
+.grid > Footer {
+  grid-area: footer;
 }

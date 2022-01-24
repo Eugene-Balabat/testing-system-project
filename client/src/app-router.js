@@ -1,16 +1,19 @@
 import Login from './Login/Login'
-import { Route, Switch, Navigate } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import Main from './Main/Main'
+import Layout from './Layout'
 
 const AppRoutes = () => {
   return (
-    <Switch>
-      <Route path='/' exact render={() => <Main />} />
-      <Route path='/main' exact render={() => <Main />} />
-      <Route path='/login' exact render={() => <Login />} />
-      <Navigate to='/' />
-    </Switch>
+    <Routes>
+      <Route path='/' element={<Layout />}>
+        <Route index element={<Main />} />
+        <Route path='/main' element={<Main />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='*' element={<Main />} />
+      </Route>
+    </Routes>
   )
 }
 export default AppRoutes
