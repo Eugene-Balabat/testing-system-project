@@ -1,18 +1,9 @@
-import {
-  Navbar,
-  Container,
-  Offcanvas,
-  Nav,
-  //   NavDropdown,
-  //   Form,
-  //   FormControl,
-  //   Button,
-  NavItem
-} from 'react-bootstrap'
+import { Navbar, Container, Offcanvas, Nav, NavItem } from 'react-bootstrap'
 import { NavLink } from 'react-router-dom'
 
 const Header = () => {
   return (
+    // <Navbar expand={false} style={{ backgroundColor: '#c1c8e4' }}>
     <Navbar bg='light' expand={false}>
       <Container fluid>
         <Navbar.Brand href='#'></Navbar.Brand>
@@ -45,34 +36,14 @@ const Header = () => {
                   </NavItem>
                 </li>
               </ul>
-
-              {/* <NavDropdown title='Dropdown' id='offcanvasNavbarDropdown'>
-                <NavDropdown.Item href='#action3'>Action</NavDropdown.Item>
-                <NavDropdown.Item href='#action4'>
-                  Another action
-                </NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item href='#action5'>
-                  Something else here
-                </NavDropdown.Item>
-              </NavDropdown> */}
             </Nav>
-
             <div class='d-flex justify-content-center mt-5'>
-              <button class='btn btn-outline-secondary px-5' type='button'>
-                Создать тест
-              </button>
+              <NavLink className='' to='/newtest'>
+                <button class='btn btn-outline-secondary px-5' type='button'>
+                  Создать тест
+                </button>
+              </NavLink>
             </div>
-
-            {/* <Form className='d-flex'>
-              <FormControl
-                type='search'
-                placeholder='Search'
-                className='me-2'
-                aria-label='Search'
-              />
-              <Button variant='outline-success'>Search</Button>
-            </Form> */}
           </Offcanvas.Body>
         </Navbar.Offcanvas>
       </Container>

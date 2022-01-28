@@ -6,7 +6,7 @@ const Login = () => {
       <Container className='w-28'>
         <Row className='my-auto'>
           <Col>
-            <form className='border border-3 rounded-3 p-4 '>
+            <form className='border border-3 rounded-3 p-4'>
               <div class='row mb-3'>
                 <div className='col'>
                   <FloatingLabel
@@ -21,8 +21,8 @@ const Login = () => {
                     />
                   </FloatingLabel>
                   {/* <div id='emailHelp' class='form-text'>
-        We'll never share your email with anyone else.
-       </div> */}
+             We'll never share your email with anyone else.
+              </div> */}
                 </div>
               </div>
               <div class='row mb-3'>
