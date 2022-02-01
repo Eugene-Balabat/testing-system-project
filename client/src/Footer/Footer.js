@@ -1,7 +1,7 @@
 const Footer = () => {
   return (
-    <footer class='page-footer font-small'>
-      <div class='footer-copyright text-center py-3'>
+    <footer className='page-footer font-small bg-light'>
+      <div class='footer-copyright text-center py-4'>
         © 2022 Copyright:
         <a href='http://localhost:3000/'>localhost</a>
       </div>

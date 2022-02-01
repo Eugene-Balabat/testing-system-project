@@ -1,8 +1,8 @@
 import { useContext } from 'react'
 import { Row } from 'react-bootstrap'
-import { Context } from '../../context'
+import { Context } from '../../../context'
 
-const Option = props => {
+const OptionCF = props => {
   const { updateOptionValue, removeOption } = useContext(Context)
 
   return (
@@ -12,7 +12,11 @@ const Option = props => {
           className='form-control shadow-none border-start-0 border-end-0 border-top-0 border-2 rounded-0 '
           type='text'
           onChange={event =>
-            updateOptionValue(props.id, event.currentTarget.value)
+            updateOptionValue(
+              props.itemID,
+              props.optionID,
+              event.currentTarget.value
+            )
           }
           value={props.text}
         />
@@ -20,14 +24,14 @@ const Option = props => {
       <div className='col-auto '>
         <button
           type='button'
-          class='btn-close'
+          className='btn-close shadow-none border-0'
           aria-label='Close'
           style={{ width: '0.5em', height: '0.5em' }}
-          onClick={() => removeOption(props.id)}
+          onClick={() => removeOption(props.itemID, props.optionID)}
         ></button>
       </div>
     </Row>
   )
 }
 
-export default Option
+export default OptionCF

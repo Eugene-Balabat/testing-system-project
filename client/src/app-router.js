@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import Login from './Login/Login'
 import Main from './Main/Main'
 import Layout from './Layout'
+import Test from './Test/Test'
 import CreationForm from './CreationForm/CreationForm'
 
 const AppRoutes = () => {
@@ -13,6 +14,7 @@ const AppRoutes = () => {
         <Route path='/main' element={<Main />} />
         <Route path='/login' element={<Login />} />
         <Route path='/newtest' element={<CreationForm />} />
+        <Route path='/test' element={<Test />} />
         <Route path='*' element={<Main />} />
       </Route>
     </Routes>
