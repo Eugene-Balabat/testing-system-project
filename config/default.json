@@ -1,5 +1,6 @@
 {
   "port": 5000,
-  "jwtKey": "secret-key",
-  "mongoUri": ""
+  "accesKey": "WLQhEJ9Pl9fYDhxNoWZ9",
+  "refreshKey": "WesQhs9Pl9sfddYDWZ9",
+  "mongoUri": "mongodb+srv://admin:2BCPtubeNHLqfvFo@testing-system.wliiq.mongodb.net/Testing-system?retryWrites=true&w=majority"
 }
