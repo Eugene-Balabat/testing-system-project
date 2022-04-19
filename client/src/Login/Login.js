@@ -1,37 +1,32 @@
 import { Container, Row, Col, FloatingLabel, Form } from 'react-bootstrap'
-import axios from 'axios'
-import { useEffect, useState } from 'react'
+import { useContext, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { API_URL } from '../config'
+import api from '../http'
+import { Context } from '../index'
+import { observer } from 'mobx-react-lite'
 
 const Login = () => {
   const [inputs, setInputs] = useState(() => {
     return { emailI: '', passwordI: '', rememberI: null }
   })
 
-  const instance = axios.create({
-    withCredentials: true
-  })
+  const { store } = useContext(Context)
+  const navigate = useNavigate()
 
   const clickToAuth = async () => {
     try {
-      const response = await instance.post(API_URL + '/api/post/auth', {
+      const response = await api.post(API_URL + '/api/post/auth', {
         email: inputs.emailI,
         password: inputs.passwordI
       })
 
-      console.log(response.data)
+      store.setAuth(true)
 
+      localStorage.setItem('userid', response.data.userId)
       localStorage.setItem('accestoken', response.data.accesToken)
-    } catch (error) {
-      console.log(error)
-    }
-  }
 
-  const getCookie = async () => {
-    try {
-      const response = await instance.get(API_URL + '/api/get/cookie')
-
-      //console.log(response)
+      navigate('/main')
     } catch (error) {
       console.log(error)
     }
@@ -121,15 +116,6 @@ const Login = () => {
                     Вход
                   </button>
                 </div>
-                <div className='col-auto'>
-                  <button
-                    type='submit'
-                    class='btn btn-outline-secondary'
-                    onClick={() => getCookie()}
-                  >
-                    Получить куки
-                  </button>
-                </div>
               </div>
             </div>
           </Col>
@@ -139,4 +125,4 @@ const Login = () => {
   )
 }
 
-export default Login
+export default observer(Login)

@@ -4,7 +4,6 @@ const postController = require('../controllers/post.controller')
 const router = Router()
 
 router.post('/auth', postController.authUser)
-router.post('/logout')
-router.post('/refresh')
+router.post('/logout', postController.logout)
 
 module.exports = router

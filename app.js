@@ -25,12 +25,13 @@ var corsOptionsDelegate = function (req, callback) {
 }
 
 app.use(express.json({ extended: true }))
-app.use(cors(corsOptionsDelegate))
 app.use(cookieParser())
-app.use(errorMiddleware)
+app.use(cors(corsOptionsDelegate))
 
-app.use('/api/get', require('./routes/get.routes'))
-app.use('/api/post', require('./routes/post.routes'))
+app.use('/api/get', cookieParser(), require('./routes/get.routes'))
+app.use('/api/post', cookieParser(), require('./routes/post.routes'))
+
+app.use(errorMiddleware)
 
 async function start() {
   try {

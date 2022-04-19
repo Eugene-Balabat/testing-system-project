@@ -1,8 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Row, Col, Container } from 'react-bootstrap'
+import { useParams } from 'react-router-dom'
+import { API_URL } from '../config'
+import api from '../http'
 import ItemT from './ItemT/ItemT'
 
 const Test = () => {
+  const { id } = useParams()
   const [items, setItems] = useState([
     {
       id: '1',
@@ -46,6 +50,22 @@ const Test = () => {
       type: 'MANY'
     }
   ])
+
+  const openRequest = async () => {
+    try {
+      const response = await api.get(API_URL + '/api/get/getTestData', {
+        headers: { testid: id }
+      })
+      console.log(response)
+      //setTests([...response.data.tests])
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    openRequest()
+  }, [])
 
   return (
     <Container className='my-5 w-50'>
