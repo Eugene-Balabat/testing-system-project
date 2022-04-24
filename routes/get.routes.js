@@ -8,6 +8,7 @@ const router = Router()
 router.get('/getUsers', getController.getUsers)
 router.get('/getTests', authMiddleware, getController.getTests)
 router.get('/getTestData', authMiddleware, getController.getTestData)
+router.get('/getPersonalTests', authMiddleware, getController.getPersonalTests)
 router.get('/refresh', getController.refresh)
 
 module.exports = router

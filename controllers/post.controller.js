@@ -5,6 +5,8 @@ const Question = require('../models/Question')
 const Test = require('../models/Test')
 const Group = require('../models/Group')
 const userService = require('../services/user-service')
+const bcrypt = require('bcryptjs/dist/bcrypt')
+const Target = require('../models/Target')
 
 class PostController {
   async authUser(req, res, next) {
@@ -40,6 +42,13 @@ class PostController {
 
 module.exports = new PostController()
 
+// const terget = new Target({
+//   userid: '626062ef52c4983be64a9b28',
+//   testid: '62587afba6c23134b0d59119'
+// })
+
+// await terget.save()
+
 // const group8 = new Group({
 //   value: '11-A'
 // })
@@ -49,14 +58,14 @@ module.exports = new PostController()
 // const role = await Role.findOne({ value: 'USER' })
 
 // const hashedPassword = await bcrypt.hash('10839983', 7)
-
 // const user = new User({
-//   email: 'eugene.balabat@gmail.com',
+//   email: 'djek1099@mail.ru',
 //   password: hashedPassword,
 //   username: 'Евгений',
 //   surname: 'Балабат',
 //   patronymic: 'Дмитриевич',
-//   roles: [role._id]
+//   roles: ['6209750711b33383509d12c3'],
+//   group: '6259a4349e05916246c64582'
 // })
 
 // await user.save()

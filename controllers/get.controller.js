@@ -1,8 +1,10 @@
 const Test = require('../models/Test')
+const Target = require('../models/Target')
 const User = require('../models/User')
 const userService = require('../services/user-service')
 const ApiError = require('../exceptions/api-error')
 const Question = require('../models/Question')
+const Group = require('../models/Group')
 
 class GetController {
   async getUsers(req, res, next) {
@@ -59,6 +61,35 @@ class GetController {
   async getTests(req, res, next) {
     try {
       const tests = await Test.find({})
+      const resgroups = []
+      if (!tests) throw ApiError.NotFound()
+
+      for (const test of tests) {
+        for (const group of test.groups) {
+          const candidat = await Group.findById(group)
+          if (!resgroups.find(element => element.value === candidat.value))
+            resgroups.push(candidat)
+        }
+      }
+
+      res.status(200).json({ tests: [...tests], groups: [...resgroups] })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async getPersonalTests(req, res, next) {
+    try {
+      const { userid } = req.headers
+      const tests = []
+
+      const targets = await Target.find({ userid: userid })
+
+      for (const element of targets) {
+        const candidat = await Test.findById(element.testid)
+        if (candidat) tests.push({ test: candidat, active: element.active })
+      }
+
       if (!tests) throw ApiError.NotFound()
 
       res.status(200).json({ tests: [...tests] })

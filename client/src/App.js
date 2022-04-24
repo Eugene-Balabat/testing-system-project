@@ -9,17 +9,9 @@ import { useNavigate } from 'react-router-dom'
 
 function App() {
   const { store } = useContext(Context)
-  const navigate = useNavigate()
 
   window.store = store // Удалить
 
-  useEffect(() => {
-    const asyncWrapper = async () => {
-      localStorage.getItem('accestoken') && (await store.checkAuth())
-      !store.isAuth && navigate('/login')
-    }
-    asyncWrapper()
-  }, [])
   return <AppRoutes />
 }
 

@@ -1,5 +1,5 @@
 import { Container, Row, Col, FloatingLabel, Form } from 'react-bootstrap'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { API_URL } from '../config'
 import api from '../http'
@@ -23,7 +23,7 @@ const Login = () => {
 
       store.setAuth(true)
 
-      localStorage.setItem('userid', response.data.userId)
+      localStorage.setItem('userid', response.data.user.id)
       localStorage.setItem('accestoken', response.data.accesToken)
 
       navigate('/main')
@@ -43,6 +43,15 @@ const Login = () => {
   const setRememberIValue = value => {
     setInputs({ ...inputs, rememberI: value })
   }
+
+  useEffect(() => {
+    const asyncWrapper = async () => {
+      if (localStorage.getItem('accestoken')) {
+        await store.checkAuth()
+      }
+    }
+    asyncWrapper()
+  }, [])
 
   return (
     <div className='d-flex align-items-center'>
