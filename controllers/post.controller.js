@@ -6,7 +6,8 @@ const Test = require('../models/Test')
 const Group = require('../models/Group')
 const userService = require('../services/user-service')
 const bcrypt = require('bcryptjs/dist/bcrypt')
-const Target = require('../models/Target')
+const Answer = require('../models/Answer')
+const Report = require('../models/Report')
 
 class PostController {
   async authUser(req, res, next) {
@@ -38,9 +39,45 @@ class PostController {
       next(error)
     }
   }
+
+  async setReport(req, res, next) {
+    try {
+      const { testid, userid, data } = req.body
+
+      if (!testid || !userid || !data)
+        throw ApiError.BadRequest('Ошибка получения данных')
+
+      const report = await Report.findOne({ testid, userid })
+      if (report) throw ApiError.BadRequest('Тест уже пройден.')
+
+      const date = new Date(Date.now())
+      date.setTime(date)
+      const convertedDate = new Intl.DateTimeFormat('ru').format(date)
+
+      const result = await Report.create({
+        testid,
+        userid,
+        data,
+        convertedDate
+      })
+
+      if (!result)
+        throw ApiError.BadRequest('Ошибка во время выполнения запроса')
+
+      res.status(200).json('Данные добавлены')
+    } catch (error) {
+      next(error)
+    }
+  }
 }
 
 module.exports = new PostController()
+
+// const ans = new Answer({
+//   answer: 'Na2SO4'
+// })
+
+// await ans.save()
 
 // const terget = new Target({
 //   userid: '626062ef52c4983be64a9b28',

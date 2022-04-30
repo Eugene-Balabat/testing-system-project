@@ -50,6 +50,7 @@ const Login = () => {
         await store.checkAuth()
       }
     }
+    if (store.user.id || localStorage.getItem('userid')) navigate('/main')
     asyncWrapper()
   }, [])
 

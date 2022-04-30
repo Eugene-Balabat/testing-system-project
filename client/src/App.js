@@ -3,9 +3,8 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import AppRoutes from './app-router'
 import './stylesheets/custom-bootstrap.css'
 import { Context } from './index'
-import { useContext, useEffect } from 'react'
+import { useContext } from 'react'
 import { observer } from 'mobx-react-lite'
-import { useNavigate } from 'react-router-dom'
 
 function App() {
   const { store } = useContext(Context)

@@ -24,22 +24,21 @@ const Main = () => {
   const openRequest = async () => {
     try {
       let response = null
+      const localtests = []
       if (role === 'T') {
         response = await api.get(API_URL + '/api/get/getTests')
         setGroups([...response.data.groups])
-        setTests([...response.data.tests])
       } else if (role === 'S') {
-        const localtests = []
         response = await api.get(API_URL + '/api/get/getPersonalTests', {
           headers: { userid: localStorage.getItem('userid') }
         })
-        response.data.tests.forEach(element => {
-          const test = element.test
-          test.active = element.active
-          localtests.push(test)
-        })
-        setTests([...localtests])
       }
+      response.data.tests.forEach(element => {
+        const test = element.test
+        test.active = element.active
+        localtests.push(test)
+      })
+      setTests([...localtests])
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {
@@ -141,7 +140,6 @@ const Main = () => {
   }, [currentValue])
 
   useEffect(() => {
-    console.log(tests)
     if (tests.length) rebuiltTests()
   }, [tests])
 
@@ -169,10 +167,7 @@ const Main = () => {
 
   useEffect(() => {
     const asyncWrapper = async () => {
-      if (localStorage.getItem('accestoken')) {
-        await store.checkAuth()
-      }
-
+      if (localStorage.getItem('accestoken')) await store.checkAuth()
       checkAuthUser()
     }
     asyncWrapper()
@@ -220,12 +215,24 @@ const Main = () => {
 
       <div class='row row-cols-1 row-cols-md-3 g-4 justify-content-center m-0'>
         {output.map(element => {
-          const dateBD = new Date(Date.parse(element.date)) // convert db date to milliseconds
-          dateBD.setTime(dateBD) // convert from milliseconds to full date
+          const createdDate = new Date(Date.parse(element.date)) // convert db date to milliseconds
+          createdDate.setTime(createdDate) // convert from milliseconds to full date
+          const resCreatedDate = new Intl.DateTimeFormat('ru').format(
+            createdDate
+          ) // convert full date to ru segment date
 
-          const convertedDate = new Intl.DateTimeFormat('ru').format(dateBD) // convert full date to ru segment date
+          const closeDate = new Date(Date.parse(element.dateclose))
+          closeDate.setTime(closeDate)
+          const resCloseDate = new Intl.DateTimeFormat('ru').format(closeDate)
 
-          return <CardTest {...element} date={convertedDate} />
+          return (
+            <CardTest
+              {...element}
+              createdDate={resCreatedDate}
+              closeDate={resCloseDate}
+              role={role}
+            />
+          )
         })}
       </div>
     </Container>

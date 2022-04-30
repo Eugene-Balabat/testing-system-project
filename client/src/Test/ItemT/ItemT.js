@@ -5,28 +5,46 @@ import OptionSingle from './OptionT/OptionSingle'
 const ItemT = props => {
   return (
     <Row className='m-0 mb-5'>
-      <Form className='p-0'>
-        <Row className='m-0 p-0 '>
-          <p class='fs-5 p-0'>{props.text}</p>
+      <Form
+        className={`p-0 border-end border-3 ${
+          props.currentData.warning && `border-danger `
+        }`}
+      >
+        <Row className='m-0 p-0 px-2'>
+          <p className='fs-5 p-0'>{props.currentData.title}</p>
         </Row>
-
-        <Row className='m-0 p-0'>
-          {props.options.map(option => {
-            if (props.type === 'SINGLE')
+        <Row className='m-0 p-0 px-3'>
+          {props.currentData.options.map(option => {
+            if (props.currentData.type)
               return (
                 <OptionSingle
-                  text={option.text}
-                  id={option.id}
-                  idItem={props.id}
+                  data={option}
+                  idItem={props.currentData.id}
+                  setOptionState={props.setOptionState}
+                  role={props.currentData.role}
                 />
               )
-            else if (props.type === 'MANY')
-              return <OptionMany text={option.text} id={option.id} />
+            else if (!props.currentData.type)
+              return (
+                <OptionMany
+                  data={option}
+                  idItem={props.currentData.id}
+                  setOptionState={props.setOptionState}
+                  role={props.currentData.role}
+                />
+              )
             else return <></>
           })}
         </Row>
-        <div id={props.id} className='form-text mt-2'>
-          {props.optionHelp}
+        <div
+          id={props.currentData.id}
+          className={`form-text mt-2 ${
+            props.currentData.warning && `text-danger`
+          }`}
+        >
+          {props.currentData.type
+            ? props.currentData.optionHelp.single
+            : props.currentData.optionHelp.many}
         </div>
       </Form>
     </Row>

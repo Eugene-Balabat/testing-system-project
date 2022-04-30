@@ -4,7 +4,7 @@ import { API_URL } from '../config'
 import api from '../http'
 
 export default class Store {
-  user = { roles: [] }
+  user = { id: null, roles: [], personalinfo: null }
   isAuth = null
 
   constructor() {
@@ -15,8 +15,21 @@ export default class Store {
     this.isAuth = value
   }
 
-  setUser(value = []) {
-    this.user = { ...this.user, roles: [...value] }
+  setUser(userdata = { id: null, roles: [], info: null }) {
+    this.user = {
+      ...this.user,
+      id: userdata.id,
+      roles: [...userdata.roles],
+      personalinfo: { ...userdata.info }
+    }
+  }
+
+  clearUserData() {
+    this.setAuth(false)
+    this.setUser()
+    localStorage.removeItem('accestoken')
+    localStorage.removeItem('userid')
+    localStorage.removeItem('mainlistvalue')
   }
 
   async logout() {
@@ -29,11 +42,7 @@ export default class Store {
         ? console.log(error.response.data.message)
         : console.log(error.message)
     } finally {
-      this.setAuth(false)
-      this.setUser()
-      localStorage.removeItem('accestoken')
-      localStorage.removeItem('userid')
-      localStorage.removeItem('mainlistvalue')
+      this.clearUserData()
     }
   }
 
@@ -43,7 +52,7 @@ export default class Store {
         withCredentials: true
       })
 
-      this.setUser(response.data.user.roles)
+      this.setUser(response.data.user)
       this.setAuth(true)
 
       localStorage.setItem('accestoken', response.data.accesToken)

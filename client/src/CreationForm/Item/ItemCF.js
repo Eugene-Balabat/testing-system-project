@@ -1,11 +1,7 @@
-import { useContext } from 'react'
 import { Row, Col } from 'react-bootstrap'
 import OptionCF from './Option/OptionCF'
-import { Context } from '../../context'
 
 const ItemCF = props => {
-  const { removeItem, addOption } = useContext(Context)
-
   return (
     <Row className='m-0 justify-content-center mt-3 border border-2 rounded-3 '>
       <Row className='justify-content-end p-0  '>
@@ -15,7 +11,7 @@ const ItemCF = props => {
             class='btn-close shadow-none border-0'
             aria-label='Close'
             style={{ width: '0.5em', height: '0.5em' }}
-            onClick={() => removeItem(props.itemID)}
+            onClick={() => props.removeItem(props.itemID)}
           ></button>
         </div>
       </Row>
@@ -46,6 +42,8 @@ const ItemCF = props => {
               text={option.text}
               optionID={option.id}
               itemID={props.itemID}
+              updateOptionValue={props.updateOptionValue}
+              removeOption={props.removeOption}
             />
           )
         })}
@@ -54,7 +52,7 @@ const ItemCF = props => {
             <button
               class='btn btn-outline-secondary shadow-none border-0 rounded-circle p-1'
               onClick={() => {
-                addOption(props.itemID, 'Текст ответа')
+                props.addOption(props.itemID, 'Текст ответа')
               }}
             >
               <svg

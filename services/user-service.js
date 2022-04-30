@@ -55,7 +55,18 @@ class TokenService {
 
     await tokenService.saveToken(userDto.id, tokens.refreshToken)
 
-    return { ...tokens, user: { roles: [...roles], id: userDto.id } }
+    return {
+      ...tokens,
+      user: {
+        roles: [...roles],
+        id: userDto.id,
+        info: {
+          name: user.username,
+          surname: user.surname,
+          patronymic: user.patronymic
+        }
+      }
+    }
   }
 }
 

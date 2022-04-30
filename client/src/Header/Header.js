@@ -1,13 +1,24 @@
-import { useContext, useState } from 'react'
-import { Navbar, Container, Offcanvas, Nav, NavItem } from 'react-bootstrap'
+import { useContext, useEffect, useState } from 'react'
+import {
+  Navbar,
+  Container,
+  Offcanvas,
+  Nav,
+  NavItem,
+  Row
+} from 'react-bootstrap'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Context } from '../index'
 import { observer } from 'mobx-react-lite'
+import { toJS } from 'mobx'
 
 const Header = () => {
   const { store } = useContext(Context)
-  const [show, setShow] = useState(false)
   const navigate = useNavigate()
+
+  const [show, setShow] = useState(false)
+  const [userInfo, setUserInfo] = useState()
+  const [role, setRole] = useState()
 
   const clickToLogout = async event => {
     event.preventDefault()
@@ -16,11 +27,25 @@ const Header = () => {
     !store.isAuth && navigate('/login')
   }
 
+  useEffect(() => {
+    if (store.user.roles.length) {
+      setRole(() => {
+        const storeRoles = [...toJS(store.user.roles)]
+        if (storeRoles.includes('USER-T') || storeRoles.includes('ADMIN'))
+          return { value: 'T', title: 'Учитель' }
+        else if (storeRoles.includes('USER-S'))
+          return { value: 'S', title: 'Ученик' }
+      })
+    }
+    if (store.user.personalinfo) {
+      setUserInfo({ ...store.user.personalinfo })
+    }
+  }, [store.user])
+
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
 
   return (
-    // <Navbar expand={false} style={{ backgroundColor: '#c1c8e4' }}>
     <Navbar bg='light' expand={false}>
       <Container fluid>
         <Navbar.Brand href='#'></Navbar.Brand>
@@ -79,7 +104,7 @@ const Header = () => {
                 </li>
               </ul>
             </Nav>
-            {store.isAuth && (
+            {store.isAuth && (role.value === 'T' || role.value === 'A') && (
               <div class='d-flex justify-content-center mt-5'>
                 <NavLink to='/newtest'>
                   <button
@@ -95,6 +120,17 @@ const Header = () => {
               </div>
             )}
           </Offcanvas.Body>
+          <div className='p-3 pb-2'>
+            <Row>
+              <p className='text-muted opacity-75 mb-2'>{`Права: ${
+                role && role.title
+              }`}</p>
+              <p className='opacity-75 text-muted mb-2'>
+                {userInfo &&
+                  `Профиль: ${userInfo.surname} ${userInfo.name} ${userInfo.patronymic}`}
+              </p>
+            </Row>
+          </div>
         </Navbar.Offcanvas>
       </Container>
     </Navbar>
