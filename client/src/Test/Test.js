@@ -39,8 +39,8 @@ const Test = () => {
 
       setTitle(response.data.testData.title)
       setDescription(response.data.testData.description)
-      setItems(convertItems(response.data.items))
       setCreator(response.data.testData.creator)
+      setItems(convertItems(response.data.items))
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {
@@ -107,8 +107,16 @@ const Test = () => {
     return false
   }
 
-  const sendResults = () => {
-    checkItems()
+  const requestToDelete = async () => {
+    try {
+      await api.post(API_URL + '/api/post/deleteTest', {
+        id
+      })
+
+      navigate('/main')
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const requestToReport = async () => {
@@ -148,7 +156,8 @@ const Test = () => {
         JSON.stringify({
           items: [...items],
           title: title,
-          description: description
+          description: description,
+          creator: creator
         })
       )
       if (sendStatus) {
@@ -164,13 +173,13 @@ const Test = () => {
       if (localStorage.getItem('accestoken')) await store.checkAuth()
       checkAuthUser()
     }
-
     asyncWrapper()
 
     if (data) {
       setItems([...data.items])
       setTitle(data.title)
       setDescription(data.description)
+      setCreator(data.creator)
     } else openRequest()
 
     return () => {
@@ -251,7 +260,13 @@ const Test = () => {
                   <hr className='dropdown-divider' />
                 </li>
                 <li>
-                  <button className='dropdown-item rounded' type='button'>
+                  <button
+                    className='dropdown-item rounded'
+                    type='button'
+                    onClick={() => {
+                      requestToDelete()
+                    }}
+                  >
                     Удалить тест
                   </button>
                 </li>
@@ -266,7 +281,7 @@ const Test = () => {
               className='btn btn-outline-secondary px-4'
               type='button'
               onClick={() => {
-                sendResults()
+                checkItems()
               }}
             >
               Отправить
@@ -276,7 +291,7 @@ const Test = () => {
               <button
                 className='btn btn-outline-secondary px-4'
                 type='button'
-                disabled={creator !== store.user.id && `true`}
+                disabled={creator !== store.user.id}
                 onClick={() => {
                   showResults()
                 }}

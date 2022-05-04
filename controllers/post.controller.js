@@ -40,6 +40,93 @@ class PostController {
     }
   }
 
+  async deleteTest(req, res, next) {
+    try {
+      const { id } = req.body
+
+      if (!id) throw ApiError.BadRequest('Ошибка во время выполнения.')
+
+      const resultT = await Test.findByIdAndDelete(id)
+      if (!resultT) throw ApiError.BadRequest('Ошибка во время выполнения.')
+
+      for (const question of resultT.questions) {
+        const resultQ = await Question.findByIdAndDelete(question._id)
+        if (resultQ) {
+          for (const answer of resultQ.answers) {
+            await Answer.findByIdAndDelete(answer._id)
+          }
+        }
+      }
+
+      res.status(200).json('Данные успешно удалены.')
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async setNewTest(req, res, next) {
+    try {
+      const { title, description, dateclose, creator, groups, questions } =
+        req.body
+      const questionsDB = []
+
+      if (
+        !title ||
+        !description ||
+        !dateclose ||
+        !creator ||
+        !groups.length ||
+        !questions.length
+      )
+        throw ApiError.BadRequest('Ошибка во время выполнения запроса.')
+
+      const dateNow = new Date(Date.now())
+      dateNow.setTime(dateNow)
+
+      for (const question of questions) {
+        const answersDB = []
+
+        for (const answer of question.answers) {
+          const resultA = await Answer.create({
+            answer: answer.text,
+            true: answer.true
+          })
+          answersDB.push(resultA._id)
+        }
+
+        if (!answersDB.length)
+          throw ApiError.BadRequest('Ошибка во время выполнения запроса.')
+
+        const resultQ = await Question.create({
+          title: question.question,
+          singleAnswer: question.singleAnswer,
+          answers: [...answersDB]
+        })
+        questionsDB.push(resultQ._id)
+      }
+
+      if (!questionsDB.length)
+        throw ApiError.BadRequest('Ошибка во время выполнения запроса.')
+
+      const resultT = await Test.create({
+        title,
+        description,
+        date: new Date(dateNow),
+        dateclose: new Date(dateclose),
+        creator,
+        groups,
+        questions: [...questionsDB]
+      })
+
+      if (!resultT)
+        throw ApiError.BadRequest('Ошибка во время выполнения запроса.')
+
+      res.status(200).json('Данные добавлены')
+    } catch (error) {
+      next(error)
+    }
+  }
+
   async setReport(req, res, next) {
     try {
       const { testid, userid, data } = req.body

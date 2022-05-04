@@ -1,9 +1,13 @@
-import { Row, Col } from 'react-bootstrap'
+import { Row, Col, Form } from 'react-bootstrap'
 import OptionCF from './Option/OptionCF'
 
 const ItemCF = props => {
   return (
-    <Row className='m-0 justify-content-center mt-3 border border-2 rounded-3 '>
+    <Row
+      className={`m-0 justify-content-center mt-3 border border-2 rounded-3 ${
+        props.warning && `border-danger`
+      }`}
+    >
       <Row className='justify-content-end p-0  '>
         <div className='col-auto px-2 '>
           <button
@@ -15,34 +19,51 @@ const ItemCF = props => {
           ></button>
         </div>
       </Row>
-      <div className='p-3'>
+      <Form className='p-3'>
         <Row className='m-0 justify-content-center mb-5 align-items-center p-0'>
           <Col>
             <textarea
-              className='form-control shadow-none border-start-0 border-end-0 border-top-0 border-2 rounded-0'
+              className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-2 rounded-0 ${
+                props.question.warning && `border-danger`
+              }`}
               placeholder='Текст вопроса'
               rows='1'
+              value={props.question.data}
+              onInput={event =>
+                props.updateItemQuestion(event.target.value, props.itemID)
+              }
             ></textarea>
           </Col>
           <Col>
             <select
               className='form-select ms-auto w-75 shadow-none '
               aria-label='Default select example'
+              onChange={event =>
+                props.updateItemSelectList(event.target.value, props.itemID)
+              }
             >
-              <option value='1' selected>
+              <option value='1' selected={props.select === '1' ? true : false}>
                 Один из списка
               </option>
-              <option value='2'>Несколько из списка</option>
+
+              <option value='2' selected={props.select === '2' ? true : false}>
+                Несколько из списка
+              </option>
             </select>
           </Col>
         </Row>
         {props.options.map(option => {
           return (
             <OptionCF
+              select={props.select}
               text={option.text}
+              true={option.true}
+              warning={option.warning}
               optionID={option.id}
               itemID={props.itemID}
-              updateOptionValue={props.updateOptionValue}
+              updateOptionText={props.updateOptionText}
+              setOptionState={props.setOptionState}
+              updateOptionTrueState={props.updateOptionTrueState}
               removeOption={props.removeOption}
             />
           )
@@ -51,7 +72,8 @@ const ItemCF = props => {
           <div className='col-auto p-0'>
             <button
               class='btn btn-outline-secondary shadow-none border-0 rounded-circle p-1'
-              onClick={() => {
+              onClick={event => {
+                event.preventDefault()
                 props.addOption(props.itemID, 'Текст ответа')
               }}
             >
@@ -68,7 +90,7 @@ const ItemCF = props => {
             </button>
           </div>
         </Row>
-      </div>
+      </Form>
     </Row>
   )
 }

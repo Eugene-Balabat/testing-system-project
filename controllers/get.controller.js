@@ -136,6 +136,18 @@ class GetController {
       next(error)
     }
   }
+
+  async getGroups(req, res, next) {
+    try {
+      const groups = await Group.find({})
+
+      if (!groups) throw ApApiError.NotFound()
+
+      res.status(200).json({ groups: [...groups] })
+    } catch (error) {
+      next(error)
+    }
+  }
 }
 
 module.exports = new GetController()
