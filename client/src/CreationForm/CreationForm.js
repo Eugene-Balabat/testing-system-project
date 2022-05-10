@@ -4,26 +4,33 @@ import nextId from 'react-id-generator'
 import { Context } from '../index'
 import ItemCF from './Item/ItemCF'
 import { observer } from 'mobx-react-lite'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { API_URL } from '../config'
 import api from '../http'
 
 const CreationForm = () => {
+  const { testid } = useParams()
+
   const { store } = useContext(Context)
   const navigate = useNavigate()
 
   const [sendStatus, setSendStatus] = useState(false)
   const [formData, setFormData] = useState(null)
 
-  useEffect(() => {
-    const initialState = {
-      items: [],
-      title: { data: 'Новый тест', warning: false },
-      description: { data: '', warning: false },
-      closeDate: { data: '', warning: false },
-      groups: { data: [], warning: false }
-    }
+  const notification = `Предупреждение: Будьте внимательны, при изменении существующего теста - 
+    старый тест будет удален и будет создана его измененная копия. 
+    Все данные, которые связаны с оригинальным тестом - будут утеряны!`
 
+  const initialState = {
+    items: [],
+    title: { data: 'Новый тест', warning: false },
+    description: { data: '', warning: false },
+    closeDate: { data: '', warning: false },
+    groups: { data: [], warning: false },
+    warning: false
+  }
+
+  useEffect(() => {
     const asyncWrapper = async () => {
       if (localStorage.getItem('accestoken')) await store.checkAuth()
       checkAuthUser()
@@ -33,12 +40,20 @@ const CreationForm = () => {
     if (localStorage.getItem('dataCP')) {
       const data = JSON.parse(localStorage.getItem('dataCP'))
       setFormData({ ...data })
-    } else setFormData({ ...initialState })
+    } else {
+      testid ? requestToGetDataTest() : setFormData({ ...initialState })
+    }
+
+    store.setToastMain(null)
 
     return () => {
       localStorage.removeItem('dataCP')
     }
   }, [])
+
+  useEffect(() => {
+    localStorage.removeItem('dataCP')
+  }, [testid])
 
   useEffect(() => {
     if (formData) {
@@ -48,12 +63,38 @@ const CreationForm = () => {
         if (!checkWarningsPage()) sendRequest()
       }
 
-      if (!formData.groups.data.length) requestToGetGroups()
+      if (!formData.groups.data.length && !testid) requestToGetGroups()
     }
   }, [formData])
 
   const checkAuthUser = () => {
     if (!store.isAuth && !localStorage.getItem('accestoken')) navigate('/login')
+  }
+
+  const requestToGetDataTest = async () => {
+    try {
+      const response = await api.get(API_URL + '/api/get/getTestData', {
+        headers: {
+          testid
+        }
+      })
+
+      setExistingDataTest(response.data)
+    } catch (error) {
+      if (error.response) {
+        if (error.response.status === 401) {
+          await store.checkAuth()
+          checkAuthUser()
+        } else if (error.response.status === 400) {
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
+          store.setToastMain({
+            data: error.response.data.message || 'Непредвиденная ошибка'
+          })
+          navigate('/main')
+        } else
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
+      } else console.log(error)
+    }
   }
 
   const requestToGetGroups = async () => {
@@ -70,7 +111,19 @@ const CreationForm = () => {
         groups: { ...formData.groups, data: [...localGroups] }
       })
     } catch (error) {
-      console.log(error)
+      if (error.response) {
+        if (error.response.status === 401) {
+          await store.checkAuth()
+          checkAuthUser()
+        } else if (error.response.status === 404) {
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
+          store.setToastMain({
+            data: error.response.data.message || 'Непредвиденная ошибка'
+          })
+          navigate('/main')
+        } else
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
+      } else console.log(error)
     }
   }
 
@@ -108,10 +161,70 @@ const CreationForm = () => {
         questions: [...exportQuestions]
       })
 
+      testid &&
+        (await api.post(API_URL + '/api/post/deleteTest', {
+          id: testid
+        }))
+
       navigate('/main')
     } catch (error) {
-      console.log(error)
+      if (error.response) {
+        if (error.response.status === 401) {
+          await store.checkAuth()
+          checkAuthUser()
+        } else if (error.response.status === 400) {
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
+          store.setToastMain({
+            data: error.response.data.message || 'Непредвиденная ошибка'
+          })
+          navigate('/main')
+        } else
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
+      } else console.log(error)
     }
+  }
+
+  const setExistingDataTest = testData => {
+    const convertedGroups = []
+    const convertedItems = []
+
+    for (const item of testData.items) {
+      const convertedAnswers = []
+      for (const answer of item.answers) {
+        convertedAnswers.push({
+          id: answer._id,
+          text: answer.answer,
+          true: answer.true,
+          warning: false
+        })
+      }
+      convertedItems.push({
+        options: [...convertedAnswers],
+        id: item.question._id,
+        select: item.question.singleAnswer ? '1' : '2',
+        question: { data: item.question.title, warning: false },
+        warning: false
+      })
+    }
+
+    for (const group of testData.groups) {
+      convertedGroups.push({ ...group.data, active: group.active })
+    }
+
+    setFormData({
+      ...initialState,
+      title: { ...initialState.title, data: testData.title },
+      description: {
+        ...initialState.description,
+        data: testData.description
+      },
+      closeDate: {
+        ...initialState.closeDate,
+        data: new Date(testData.closeDate).toLocaleDateString('en-CA')
+      },
+      groups: { ...initialState.groups, data: [...convertedGroups] },
+      items: [...convertedItems]
+    })
   }
 
   const checkWarningsPage = () => {
@@ -120,6 +233,7 @@ const CreationForm = () => {
       formData.description.warning ||
       formData.groups.warning ||
       formData.closeDate.warning ||
+      formData.warning ||
       checkItemsWarnings()
     )
       return true
@@ -139,6 +253,7 @@ const CreationForm = () => {
     const localGroups = { ...formData.groups }
     const localDate = { ...formData.closeDate }
     const localItems = [...formData.items]
+    let pageWarning = false
 
     localTitle.data === ''
       ? (localTitle.warning = true)
@@ -186,13 +301,17 @@ const CreationForm = () => {
       return item
     })
 
+    !localItems.length ? (pageWarning = true) : (pageWarning = false)
+
     setFormData({
       ...formData,
       title: { ...localTitle },
       description: { ...localDescription },
       groups: { ...localGroups },
-      closeDate: { ...localDate }
+      closeDate: { ...localDate },
+      warning: pageWarning
     })
+
     setSendStatus(true)
   }
 
@@ -204,10 +323,13 @@ const CreationForm = () => {
   }
 
   const checkOptions = item => {
-    for (const option of item.options) {
-      if (option.warning) return false
+    if (item.options.length) {
+      for (const option of item.options) {
+        if (option.warning) return false
+      }
+      return true
     }
-    return true
+    return false
   }
 
   const checkOptionsTrueState = item => {
@@ -408,7 +530,7 @@ const CreationForm = () => {
   }
 
   return (
-    <Container className='my-5 w-50'>
+    <Container className='mt-5 mb-2 w-50'>
       <Row className='m-0 justify-content-center mb-3 pe-5'>
         <input
           className={`form-control form-control-lg shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
@@ -510,8 +632,14 @@ const CreationForm = () => {
           )
         })}
       <Row className='justify-content-start m-0 mt-1'>
-        <div class='col-auto p-0'>
-          <a class='nav-link px-2' role='button' onClick={() => addItem()}>
+        <div className='col-auto p-0'>
+          <a
+            className={`nav-link px-2 ${
+              formData && formData.warning && `text-danger`
+            }`}
+            role='button'
+            onClick={() => addItem()}
+          >
             Добавить вопрос
           </a>
         </div>
@@ -544,7 +672,7 @@ const CreationForm = () => {
           </div>
         </div>
       </Row>
-      <Row className='justify-content-end align-items-center m-0 mt-4'>
+      <Row className='justify-content-end align-items-center m-0 mb-5 mt-4'>
         <Col className='col-auto p-0'>
           <button
             class='btn btn-outline-secondary px-4'
@@ -557,6 +685,13 @@ const CreationForm = () => {
           </button>
         </Col>
       </Row>
+      {testid && (
+        <Row className='justify-content-center m-0 mt-4'>
+          <Col className='col-auto p-0'>
+            <p class='text-center text-danger'>{notification}</p>
+          </Col>
+        </Row>
+      )}
     </Container>
   )
 }

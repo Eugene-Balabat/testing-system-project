@@ -3,7 +3,9 @@ import Card from './Card'
 
 const CardTest = props => {
   return (
-    (((props.role === 'S' && props.active) || props.role === 'T') && (
+    (((props.role === 'S' && props.active) ||
+      props.role === 'T' ||
+      props.role === 'A') && (
       <NavLink
         to={`/test/${props._id}`}
         className='m-0'

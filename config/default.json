@@ -2,5 +2,10 @@
   "port": 5000,
   "accesKey": "WLQhEJ9Pl9fYDhxNoWZ9",
   "refreshKey": "WesQhs9Pl9sfddYDWZ9",
-  "mongoUri": "mongodb+srv://admin:2BCPtubeNHLqfvFo@testing-system.wliiq.mongodb.net/Testing-system?retryWrites=true&w=majority"
+  "mongoUri": "mongodb+srv://admin:2BCPtubeNHLqfvFo@testing-system.wliiq.mongodb.net/Testing-system?retryWrites=true&w=majority",
+  "smtp_host": "smtp.gmail.com",
+  "smtp_port": 587,
+  "email": "eugene.balabat@gmail.com",
+  "password": "wdolnqdvasmbnoak",
+  "api_url": "http://localhost:3000"
 }

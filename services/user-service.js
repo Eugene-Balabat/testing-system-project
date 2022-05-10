@@ -4,13 +4,15 @@ const Role = require('../models/Role')
 const tokenService = require('./token-service')
 const UserDto = require('../dtos/user-dto')
 const ApiError = require('../exceptions/api-error')
+const nodemailer = require('nodemailer')
+const config = require('../config/default.json')
 
-class TokenService {
+class UserService {
   async login(email, password) {
     const user = await User.findOne({ email })
     const roles = []
     if (!user)
-      throw ApiError.BadRequest('Ползователь с таким email не существует.')
+      throw ApiError.Conflict('Ползователь с таким email не существует.')
 
     const isMatchPasswords = await bcrypt.compare(password, user.password)
     if (!isMatchPasswords) throw ApiError.BadRequest('Неверный пароль.')
@@ -68,6 +70,30 @@ class TokenService {
       }
     }
   }
+
+  async sendMail(email, password) {
+    let transporter = nodemailer.createTransport({
+      host: config.smtp_host,
+      port: config.smtp_port,
+      secure: false,
+      auth: {
+        user: config.email,
+        pass: config.password
+      }
+    })
+
+    const result = await transporter.sendMail({
+      from: config.email,
+      to: email,
+      subject: `Данные зарегистрированного пользователя на ресурсе ${config.api_url}`,
+      text: 'Пожалуйста сохраните данные логин и пароль, прежде чем удалять это сообщение.',
+      html: `<div>
+          <p>Логин: ${email}</p>
+          <p>Пароль: ${password}</p>
+          <a href=${config.api_url}>Ссылка для авторизации</a>
+        </div>`
+    })
+  }
 }
 
-module.exports = new TokenService()
+module.exports = new UserService()

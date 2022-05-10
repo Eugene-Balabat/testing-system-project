@@ -5,11 +5,13 @@ import { API_URL } from '../config'
 import api from '../http'
 import { Context } from '../index'
 import { observer } from 'mobx-react-lite'
+import { toJS } from 'mobx'
 
 const Login = () => {
   const [inputs, setInputs] = useState(() => {
     return { emailI: '', passwordI: '', rememberI: null }
   })
+  const [toast, setToast] = useState(null)
 
   const { store } = useContext(Context)
   const navigate = useNavigate()
@@ -28,7 +30,20 @@ const Login = () => {
 
       navigate('/main')
     } catch (error) {
-      console.log(error)
+      if (error.response) {
+        if (error.response.status === 400) {
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
+          setToast({
+            data: error.response.data.message || 'Непредвиденная ошибка'
+          })
+        } else if (error.response.status === 409) {
+          setToast({
+            data: error.response.data.message || 'Непредвиденная ошибка'
+          })
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
+        } else
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
+      } else console.log(error)
     }
   }
 
@@ -50,9 +65,18 @@ const Login = () => {
         await store.checkAuth()
       }
     }
+
     if (store.user.id || localStorage.getItem('userid')) navigate('/main')
+
+    store.setToastMain(null)
     asyncWrapper()
   }, [])
+
+  useEffect(() => {
+    if (store.toasts.auth) {
+      setToast({ ...toJS(store.toasts.auth) })
+    }
+  }, [store.toasts.auth])
 
   return (
     <div className='d-flex align-items-center'>
@@ -130,6 +154,13 @@ const Login = () => {
             </div>
           </Col>
         </Row>
+        {toast && (
+          <Row className='justify-content-center mt-4 '>
+            <Col className='col-auto p-0'>
+              <p class='text-center text-danger m-0'>{`Во время выполнения запроса произошло исключение: ${toast.data}`}</p>
+            </Col>
+          </Row>
+        )}
       </Container>
     </div>
   )

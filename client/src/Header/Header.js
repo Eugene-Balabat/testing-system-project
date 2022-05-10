@@ -18,7 +18,7 @@ const Header = () => {
 
   const [show, setShow] = useState(false)
   const [userInfo, setUserInfo] = useState()
-  const [role, setRole] = useState()
+  const [role, setRole] = useState(null)
 
   const clickToLogout = async event => {
     event.preventDefault()
@@ -31,7 +31,9 @@ const Header = () => {
     if (store.user.roles.length) {
       setRole(() => {
         const storeRoles = [...toJS(store.user.roles)]
-        if (storeRoles.includes('USER-T') || storeRoles.includes('ADMIN'))
+        if (storeRoles.includes('ADMIN'))
+          return { value: 'A', title: 'Администратор' }
+        else if (storeRoles.includes('USER-T'))
           return { value: 'T', title: 'Учитель' }
         else if (storeRoles.includes('USER-S'))
           return { value: 'S', title: 'Ученик' }
@@ -79,6 +81,15 @@ const Header = () => {
                     </NavItem>
                   </li>
                 )}
+                {store.isAuth && role && role.value === 'A' && (
+                  <li class='list-group-item'>
+                    <NavItem>
+                      <NavLink className='nav-link p-0' to='/newuser'>
+                        Добавить пользователя
+                      </NavLink>
+                    </NavItem>
+                  </li>
+                )}
                 <li class='list-group-item'>
                   <NavItem>
                     {store.isAuth ? (
@@ -104,21 +115,23 @@ const Header = () => {
                 </li>
               </ul>
             </Nav>
-            {store.isAuth && (role.value === 'T' || role.value === 'A') && (
-              <div class='d-flex justify-content-center mt-5'>
-                <NavLink to='/newtest'>
-                  <button
-                    class='btn btn-outline-secondary px-5'
-                    type='button'
-                    onClick={() => {
-                      handleClose()
-                    }}
-                  >
-                    Создать тест
-                  </button>
-                </NavLink>
-              </div>
-            )}
+            {store.isAuth &&
+              role &&
+              (role.value === 'T' || role.value === 'A') && (
+                <div class='d-flex justify-content-center mt-5'>
+                  <NavLink to='/newtest'>
+                    <button
+                      class='btn btn-outline-secondary px-5'
+                      type='button'
+                      onClick={() => {
+                        handleClose()
+                      }}
+                    >
+                      Создать тест
+                    </button>
+                  </NavLink>
+                </div>
+              )}
           </Offcanvas.Body>
           <div className='p-3 pb-2'>
             <Row>

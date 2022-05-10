@@ -1,4 +1,4 @@
-import { Container } from 'react-bootstrap'
+import { Col, Container, Row } from 'react-bootstrap'
 import CardTest from '../CardTest/CardTest'
 import { useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
@@ -20,12 +20,14 @@ const Main = () => {
   const [tests, setTests] = useState([])
   const [output, setOutput] = useState([])
   const [groups, setGroups] = useState([])
+  const [toast, setToast] = useState(null)
 
   const openRequest = async () => {
     try {
       let response = null
       const localtests = []
-      if (role === 'T') {
+
+      if (role === 'T' || role === 'A') {
         response = await api.get(API_URL + '/api/get/getTests')
         setGroups([...response.data.groups])
       } else if (role === 'S') {
@@ -33,17 +35,24 @@ const Main = () => {
           headers: { userid: localStorage.getItem('userid') }
         })
       }
+
       response.data.tests.forEach(element => {
         const test = element.test
         test.active = element.active
         localtests.push(test)
       })
+
       setTests([...localtests])
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {
           await store.checkAuth()
           checkAuthUser()
+        } else if (error.response.status === 404) {
+          setToast({
+            data: error.response.data.message || 'Непредвиденная ошибка'
+          })
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
         } else
           console.log(error.response.data.message || 'Непредвиденная ошибка')
       } else console.log(error)
@@ -55,7 +64,7 @@ const Main = () => {
   }
 
   const rebuiltTests = async () => {
-    if (role === 'T') {
+    if (role === 'T' || role === 'A') {
       if (currentValue.value === valueList.all.value) setOutput([...tests])
       else if (currentValue.value === valueList.self.value) setSelfStateOutput()
       else if (valueIsClass()) setClassStateOutput()
@@ -171,6 +180,8 @@ const Main = () => {
       checkAuthUser()
     }
     asyncWrapper()
+
+    store.setToastAuth(null)
   }, [])
 
   useEffect(() => {
@@ -181,24 +192,36 @@ const Main = () => {
     if (store.user.roles.length) {
       setRole(() => {
         const storeRoles = [...toJS(store.user.roles)]
-        if (storeRoles.includes('USER-T') || storeRoles.includes('ADMIN')) {
-          setValueList({
-            all: { title: 'Все тесты', value: 'all' },
-            self: { title: 'Мои тесты', value: 'self' },
-            class: { title: 'Классы', value: 'class', groups: [] }
-          })
+        const valueListT = {
+          all: { title: 'Все тесты', value: 'all' },
+          self: { title: 'Мои тесты', value: 'self' },
+          class: { title: 'Классы', value: 'class', groups: [] }
+        }
+        const valueListS = {
+          all: { title: 'Все тесты', value: 'all' },
+          cancel: { title: 'Завершенные', value: 'cancel' },
+          active: { title: 'Активные', value: 'active' }
+        }
+
+        if (storeRoles.includes('ADMIN')) {
+          setValueList({ ...valueListT })
+          return 'A'
+        } else if (storeRoles.includes('USER-T')) {
+          setValueList({ ...valueListT })
           return 'T'
         } else if (storeRoles.includes('USER-S')) {
-          setValueList({
-            all: { title: 'Все тесты', value: 'all' },
-            cancel: { title: 'Завершенные', value: 'cancel' },
-            active: { title: 'Активные', value: 'active' }
-          })
+          setValueList({ ...valueListS })
           return 'S'
         }
       })
     }
   }, [store.user.roles])
+
+  useEffect(() => {
+    if (store.toasts.main) {
+      setToast({ ...toJS(store.toasts.main) })
+    }
+  }, [store.toasts.main])
 
   return (
     <Container>
@@ -215,6 +238,7 @@ const Main = () => {
 
       <div class='row row-cols-1 row-cols-md-3 g-4 justify-content-center m-0'>
         {output.map(element => {
+          console.log(element)
           const createdDate = new Date(Date.parse(element.date)) // convert db date to milliseconds
           createdDate.setTime(createdDate) // convert from milliseconds to full date
           const resCreatedDate = new Intl.DateTimeFormat('ru').format(
@@ -235,6 +259,13 @@ const Main = () => {
           )
         })}
       </div>
+      {toast && (
+        <Row className='justify-content-center mt-4 '>
+          <Col className='col-auto p-0'>
+            <p class='text-center text-danger m-0'>{`Во время выполнения запроса произошло исключение: ${toast.data}`}</p>
+          </Col>
+        </Row>
+      )}
     </Container>
   )
 }

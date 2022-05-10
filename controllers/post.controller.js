@@ -8,6 +8,8 @@ const userService = require('../services/user-service')
 const bcrypt = require('bcryptjs/dist/bcrypt')
 const Answer = require('../models/Answer')
 const Report = require('../models/Report')
+const Role = require('../models/Role')
+const testService = require('../services/test-service')
 
 class PostController {
   async authUser(req, res, next) {
@@ -46,6 +48,8 @@ class PostController {
 
       if (!id) throw ApiError.BadRequest('Ошибка во время выполнения.')
 
+      await Report.deleteMany({ testid: id })
+
       const resultT = await Test.findByIdAndDelete(id)
       if (!resultT) throw ApiError.BadRequest('Ошибка во время выполнения.')
 
@@ -59,6 +63,47 @@ class PostController {
       }
 
       res.status(200).json('Данные успешно удалены.')
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async setNewUser(req, res, next) {
+    try {
+      const { surname, name, patronymic, email, password, group, roles } =
+        req.body
+
+      if (
+        !surname ||
+        !name ||
+        !patronymic ||
+        !email ||
+        !password ||
+        !roles.length
+      )
+        throw ApiError.BadRequest('Ошибка во время выполнения запроса.')
+
+      const candidate = await User.findOne({ email })
+      if (candidate)
+        throw ApiError.Conflict('Пользователь с таким email уже существует.')
+
+      const hashedPassword = await bcrypt.hash(password, 8)
+
+      await userService.sendMail(email, password)
+
+      const user = await User.create({
+        email,
+        password: hashedPassword,
+        username: name,
+        surname,
+        patronymic,
+        group: group && group,
+        roles: [...roles]
+      })
+      if (!user)
+        throw ApiError.BadRequest('Ошибка во время выполнения запроса.')
+
+      res.status(200).json('Пользователь создан.')
     } catch (error) {
       next(error)
     }
@@ -111,15 +156,17 @@ class PostController {
       const resultT = await Test.create({
         title,
         description,
-        date: new Date(dateNow),
+        date: dateNow,
         dateclose: new Date(dateclose),
         creator,
         groups,
         questions: [...questionsDB]
       })
 
-      if (!resultT)
+      if (!resultT) {
+        await testService.deleteTestData([...questionsDB])
         throw ApiError.BadRequest('Ошибка во время выполнения запроса.')
+      }
 
       res.status(200).json('Данные добавлены')
     } catch (error) {
@@ -135,17 +182,16 @@ class PostController {
         throw ApiError.BadRequest('Ошибка получения данных')
 
       const report = await Report.findOne({ testid, userid })
-      if (report) throw ApiError.BadRequest('Тест уже пройден.')
+      if (report) throw ApiError.Conflict('Тест уже пройден.')
 
       const date = new Date(Date.now())
       date.setTime(date)
-      const convertedDate = new Intl.DateTimeFormat('ru').format(date)
 
       const result = await Report.create({
         testid,
         userid,
         data,
-        convertedDate
+        date
       })
 
       if (!result)
@@ -159,6 +205,21 @@ class PostController {
 }
 
 module.exports = new PostController()
+
+// const role = await Role.findOne({ value: 'USER' })
+
+// const hashedPassword = await bcrypt.hash('10839983', 7)
+// const user = new User({
+//   email: 'admin@mail.ru',
+//   password: hashedPassword,
+//   username: 'Евгений',
+//   surname: 'Балабат',
+//   patronymic: 'Дмитриевич',
+//   roles: ['6209750711b33383509d12c3'],
+//   group: '6259a4349e05916246c64582'
+// })
+
+// await user.save()
 
 // const ans = new Answer({
 //   answer: 'Na2SO4'

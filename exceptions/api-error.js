@@ -13,7 +13,11 @@ module.exports = class ApiError extends Error {
     return new ApiError(400, message, errors)
   }
 
-  static NotFound() {
-    return new ApiError(404, 'Данные не найдены.')
+  static NotFound(message = null) {
+    return new ApiError(404, message || 'Данные не найдены.')
+  }
+
+  static Conflict(message, errors = []) {
+    return new ApiError(409, message, errors)
   }
 }

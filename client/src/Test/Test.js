@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { Context } from '../index'
 import { Row, Col, Container } from 'react-bootstrap'
-import { useNavigate, useParams } from 'react-router-dom'
+import { NavLink, useNavigate, useParams } from 'react-router-dom'
 import { API_URL } from '../config'
 import api from '../http'
 import ItemT from './ItemT/ItemT'
@@ -12,6 +12,7 @@ const Test = () => {
   const { id } = useParams()
   const [role, setRole] = useState()
   const [sendStatus, setSendStatus] = useState(false)
+  const [toast, setToast] = useState(null)
 
   const [title, setTitle] = useState()
   const [description, setDescription] = useState()
@@ -28,7 +29,7 @@ const Test = () => {
 
   const openRequest = async () => {
     try {
-      const response = await api.get(API_URL + '/api/get/getTestData', {
+      const response = await api.get(API_URL + '/api/get/getPersonalTestData', {
         headers: {
           testid: id,
           userid: store.user.id || localStorage.getItem('userid')
@@ -40,15 +41,26 @@ const Test = () => {
       setTitle(response.data.testData.title)
       setDescription(response.data.testData.description)
       setCreator(response.data.testData.creator)
-      setItems(convertItems(response.data.items))
+      setItems(convertItems(response.data.testData.items))
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {
           await store.checkAuth()
           checkAuthUser()
-        } else if (error.response.status === 404)
-          console.log(error.response.data.message || 'Данные не найдены')
-        else console.log(error.response.data.message || 'Непредвиденная ошибка')
+        } else if (error.response.status === 400) {
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
+          store.setToastMain({
+            data: error.response.data.message || 'Непредвиденная ошибка'
+          })
+          navigate('/main')
+        } else if (error.response.status === 404) {
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
+          store.setToastMain({
+            data: error.response.data.message || 'Непредвиденная ошибка'
+          })
+          navigate('/main')
+        } else
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
       } else console.log(error)
     }
   }
@@ -115,7 +127,19 @@ const Test = () => {
 
       navigate('/main')
     } catch (error) {
-      console.log(error)
+      if (error.response) {
+        if (error.response.status === 401) {
+          await store.checkAuth()
+          checkAuthUser()
+        } else if (error.response.status === 400) {
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
+          store.setToastMain({
+            data: error.response.data.message || 'Непредвиденная ошибка'
+          })
+          navigate('/main')
+        } else
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
+      } else console.log(error)
     }
   }
 
@@ -135,7 +159,14 @@ const Test = () => {
           checkAuthUser()
         } else if (error.response.status === 400) {
           console.log(error.response.data.message || 'Непредвиденная ошибка')
-          navigate('/main')
+          setToast({
+            data: error.response.data.message || 'Непредвиденная ошибка'
+          })
+        } else if (error.response.status === 409) {
+          console.log(error.response.data.message || 'Непредвиденная ошибка')
+          setToast({
+            data: error.response.data.message || 'Непредвиденная ошибка'
+          })
         } else
           console.log(error.response.data.message || 'Непредвиденная ошибка')
       } else console.log(error)
@@ -182,6 +213,8 @@ const Test = () => {
       setCreator(data.creator)
     } else openRequest()
 
+    store.setToastMain(null)
+
     return () => {
       localStorage.removeItem('datatest')
     }
@@ -195,8 +228,8 @@ const Test = () => {
     if (store.user.roles.length) {
       setRole(() => {
         const storeRoles = [...toJS(store.user.roles)]
-        if (storeRoles.includes('USER-T') || storeRoles.includes('ADMIN'))
-          return 'T'
+        if (storeRoles.includes('ADMIN')) return 'A'
+        else if (storeRoles.includes('USER-T')) return 'T'
         else if (storeRoles.includes('USER-S')) return 'S'
       })
     }
@@ -226,7 +259,7 @@ const Test = () => {
         />
       ))}
       <Row className='align-items-center m-0 mt-3'>
-        {role === 'T' && creator === store.user.id && (
+        {(role === 'T' || role === 'A') && creator === store.user.id && (
           <Col className='col-auto p-0 '>
             <div className='btn-group'>
               <button
@@ -252,9 +285,14 @@ const Test = () => {
               </button>
               <ul className='dropdown-menu'>
                 <li>
-                  <button className='dropdown-item rounded' type='button'>
-                    Редактировать тест
-                  </button>
+                  <NavLink
+                    to={`/newtest/${id}`}
+                    style={{ textDecoration: 'none', color: 'black' }}
+                  >
+                    <button className='dropdown-item rounded' type='button'>
+                      Редактировать тест
+                    </button>
+                  </NavLink>
                 </li>
                 <li>
                   <hr className='dropdown-divider' />
@@ -287,7 +325,7 @@ const Test = () => {
               Отправить
             </button>
           )) ||
-            (role === 'T' && (
+            ((role === 'T' || role === 'A') && (
               <button
                 className='btn btn-outline-secondary px-4'
                 type='button'
@@ -301,6 +339,13 @@ const Test = () => {
             ))}
         </Col>
       </Row>
+      {toast && (
+        <Row className='justify-content-center mt-4 '>
+          <Col className='col-auto p-0'>
+            <p class='text-center text-danger m-0'>{`Во время выполнения запроса произошло исключение: ${toast.data}`}</p>
+          </Col>
+        </Row>
+      )}
     </Container>
   )
 }

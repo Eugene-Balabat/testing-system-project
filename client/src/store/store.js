@@ -4,6 +4,7 @@ import { API_URL } from '../config'
 import api from '../http'
 
 export default class Store {
+  toasts = { main: null, auth: null }
   user = { id: null, roles: [], personalinfo: null }
   isAuth = null
 
@@ -13,6 +14,20 @@ export default class Store {
 
   setAuth(value) {
     this.isAuth = value
+  }
+
+  setToastMain(main = null) {
+    this.toasts = {
+      ...this.toasts,
+      main
+    }
+  }
+
+  setToastAuth(auth = null) {
+    this.toasts = {
+      ...this.toasts,
+      auth
+    }
   }
 
   setUser(userdata = { id: null, roles: [], info: null }) {
@@ -59,9 +74,12 @@ export default class Store {
       localStorage.setItem('userid', response.data.user.id)
     } catch (error) {
       if (error.response) {
-        error.response.status === 401
-          ? await this.logout()
-          : console.log(error.message)
+        if (error.response.status === 401) {
+          this.setToastAuth({
+            data: 'Возникла ошибка с данными авторизации, пожалуйста авторизуйтесь повторно.'
+          })
+          await this.logout()
+        } else console.log(error.message)
       } else console.log(error)
     }
   }

@@ -28,7 +28,7 @@ const DropList = props => {
           />
         </ul>
       )) ||
-        (props.userrole === 'T' && (
+        ((props.userrole === 'T' || props.userrole === 'A') && (
           <ul class='dropdown-menu'>
             <LiComponent
               data={props.valueList.all}

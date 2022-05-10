@@ -8,7 +8,7 @@ const OptionSingle = props => {
         id={props.data._id}
         aria-describedby={props.idItem}
         checked={props.data.checked}
-        disabled={props.role === 'T'}
+        disabled={props.role === 'T' || props.role === 'A'}
         onChange={() => {
           props.setOptionState(props.data._id, props.idItem)
         }}

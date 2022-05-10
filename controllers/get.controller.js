@@ -1,11 +1,13 @@
 const Test = require('../models/Test')
 const User = require('../models/User')
 const userService = require('../services/user-service')
+const testService = require('../services/test-service')
 const ApiError = require('../exceptions/api-error')
 const Question = require('../models/Question')
 const Answer = require('../models/Answer')
 const Group = require('../models/Group')
 const Report = require('../models/Report')
+const Role = require('../models/Role')
 
 class GetController {
   async getUsers(req, res, next) {
@@ -41,42 +43,45 @@ class GetController {
     }
   }
 
-  async getTestData(req, res, next) {
+  async getPersonalTestData(req, res, next) {
     try {
       const { testid, userid } = req.headers
-      const questions = []
       let active = null
 
-      const testData = await Test.findById(testid)
-      if (!testData) throw ApiError.NotFound()
+      if (!testid || !userid)
+        throw ApiError.BadRequest('Ошибка во время выполнения запроса.')
 
       const report = await Report.findOne({ testid, userid })
 
       report ? (active = false) : (active = true)
 
-      for (const question of testData.questions) {
-        const candidatQ = await Question.findById(question)
-        if (candidatQ) {
-          const answers = []
-          for (const answer of candidatQ.answers) {
-            const candidatA = await Answer.findById(answer)
-            if (candidatA) answers.push(candidatA)
-          }
-          questions.push({
-            question: candidatQ,
-            answers: [...answers]
-          })
-        }
-      }
+      const testData = await testService.getTestData(testid)
 
       res.status(200).json({
-        items: [...questions],
         active,
         testData: {
           title: testData.title,
           description: testData.description,
-          creator: testData.creator
+          creator: testData.creator,
+          items: [...testData.items]
         }
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async getTestData(req, res, next) {
+    try {
+      const { testid } = req.headers
+
+      if (!testid)
+        throw ApiError.BadRequest('Ошибка во время выполнения запроса.')
+
+      const testData = await testService.getTestData(testid)
+
+      res.status(200).json({
+        ...testData
       })
     } catch (error) {
       next(error)
@@ -85,9 +90,9 @@ class GetController {
 
   async getTests(req, res, next) {
     try {
-      const tests = await Test.find({})
       const restests = []
       const resgroups = []
+      const tests = await Test.find({})
       if (!tests) throw ApiError.NotFound()
 
       const now = new Date(Date.now())
@@ -114,7 +119,10 @@ class GetController {
       const resTests = []
 
       const user = await User.findById(userid)
+      if (!user) throw ApiError.NotFound('Пользователь не найден.')
+
       const tests = await Test.find({})
+      if (!tests) throw ApiError.NotFound()
 
       const now = new Date(Date.now())
 
@@ -129,8 +137,6 @@ class GetController {
         }
       }
 
-      if (!tests) throw ApiError.NotFound()
-
       res.status(200).json({ tests: [...resTests] })
     } catch (error) {
       next(error)
@@ -141,9 +147,21 @@ class GetController {
     try {
       const groups = await Group.find({})
 
-      if (!groups) throw ApApiError.NotFound()
+      if (!groups) throw ApiError.NotFound()
 
       res.status(200).json({ groups: [...groups] })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async getRoles(req, res, next) {
+    try {
+      const roles = await Role.find({})
+
+      if (!roles) throw ApiError.NotFound()
+
+      res.status(200).json({ roles: [...roles] })
     } catch (error) {
       next(error)
     }
