@@ -7,7 +7,7 @@ const CardTest = props => {
       props.role === 'T' ||
       props.role === 'A') && (
       <NavLink
-        to={`/test/${props._id}`}
+        to={`/test/${'T'}/${props._id}`}
         className='m-0'
         style={{ textDecoration: 'none', color: 'black' }}
       >

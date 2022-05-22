@@ -2,7 +2,9 @@ const OptionSingle = props => {
   return (
     <div className='form-check mb-2'>
       <input
-        className='form-check-input '
+        className={`form-check-input ${
+          props.typePage === 'R' && props.data.true && `opacity-100`
+        }`}
         type='radio'
         name='flexRadioDefault'
         id={props.data._id}
@@ -13,7 +15,14 @@ const OptionSingle = props => {
           props.setOptionState(props.data._id, props.idItem)
         }}
       />
-      <label class='form-check-label' for={props.data._id}>
+      <label
+        className={`form-check-label ${
+          props.typePage === 'R' &&
+          props.data.true &&
+          `text-success fw-bold opacity-75`
+        }`}
+        for={props.data._id}
+      >
         {props.data.answer}
       </label>
     </div>

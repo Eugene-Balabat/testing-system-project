@@ -3,6 +3,7 @@ const Test = require('../models/Test')
 const Question = require('../models/Question')
 const Answer = require('../models/Answer')
 const Group = require('../models/Group')
+const Report = require('../models/Report')
 
 class TestService {
   async getTestData(id) {
@@ -10,10 +11,13 @@ class TestService {
     const resGroups = []
 
     const data = await Test.findById(id)
-    if (!data) throw ApiError.NotFound()
+    if (!data) throw ApiError.BadRequest('Данные теста не были найдены.')
 
     const groups = await Group.find({})
-    if (!groups) throw ApApiError.NotFound()
+    if (!groups)
+      throw ApApiError.BadRequest(
+        'Не были надены группы, которые связаны с тестом.'
+      )
 
     for (const group of groups) {
       if (data.groups.includes(group._id))
@@ -44,6 +48,41 @@ class TestService {
       groups: [...resGroups],
       items: [...questions]
     }
+  }
+
+  async delete(testdata) {
+    await Test.findByIdAndDelete(testdata._id)
+    await Report.deleteMany({ testid: testdata._id })
+
+    await this.deleteTestData([...testdata.questions])
+  }
+
+  checkMistakes(item) {
+    for (const answer of item.answers) {
+      if (item.singleAnswer) {
+        if (answer.true && !answer.checked) {
+          return true
+        }
+      } else {
+        if (
+          (answer.true && !answer.checked) ||
+          (!answer.true && answer.checked)
+        )
+          return true
+      }
+    }
+    return false
+  }
+
+  getAnswerData(report) {
+    let correct = 0
+    let uncorrect = 0
+
+    for (const item of report.data) {
+      this.checkMistakes(item) ? (uncorrect += 1) : (correct += 1)
+    }
+
+    return { correct, uncorrect }
   }
 
   async deleteTestData(questions) {

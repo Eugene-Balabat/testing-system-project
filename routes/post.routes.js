@@ -9,6 +9,7 @@ router.post('/logout', postController.logout)
 router.post('/setReport', authMiddleware, postController.setReport)
 router.post('/setNewTest', authMiddleware, postController.setNewTest)
 router.post('/setNewUser', authMiddleware, postController.setNewUser)
+router.post('/removeUsers', authMiddleware, postController.removeUsers)
 router.post('/deleteTest', authMiddleware, postController.deleteTest)
 
 module.exports = router

@@ -82,13 +82,22 @@ const Header = () => {
                   </li>
                 )}
                 {store.isAuth && role && role.value === 'A' && (
-                  <li class='list-group-item'>
-                    <NavItem>
-                      <NavLink className='nav-link p-0' to='/newuser'>
-                        Добавить пользователя
-                      </NavLink>
-                    </NavItem>
-                  </li>
+                  <>
+                    <li class='list-group-item'>
+                      <NavItem>
+                        <NavLink className='nav-link p-0' to='/newuser'>
+                          Добавить пользователя
+                        </NavLink>
+                      </NavItem>
+                    </li>
+                    <li class='list-group-item'>
+                      <NavItem>
+                        <NavLink className='nav-link p-0' to='/removeuser'>
+                          Удалить пользователя
+                        </NavLink>
+                      </NavItem>
+                    </li>
+                  </>
                 )}
                 <li class='list-group-item'>
                   <NavItem>

@@ -3,19 +3,18 @@ const Token = require('../models/Token')
 const User = require('../models/User')
 const Question = require('../models/Question')
 const Test = require('../models/Test')
-const Group = require('../models/Group')
 const userService = require('../services/user-service')
 const bcrypt = require('bcryptjs/dist/bcrypt')
 const Answer = require('../models/Answer')
 const Report = require('../models/Report')
-const Role = require('../models/Role')
 const testService = require('../services/test-service')
 
 class PostController {
   async authUser(req, res, next) {
     try {
-      const { email, password } = req.body
-      const userData = await userService.login(email, password)
+      const { email, password, remember } = req.body
+
+      const userData = await userService.login(email, password, remember)
 
       res
         .cookie('refreshToken', userData.refreshToken, {
@@ -34,7 +33,7 @@ class PostController {
       const { refreshToken } = req.cookies
 
       const result = await Token.findOneAndDelete({ refresh: refreshToken })
-      if (!result) throw ApiError.BadRequest('Данные токена не найдены.')
+      if (!result) throw ApiError.BadRequest('Ошибка во время деавторизации.')
 
       res.status(200).json('Деавторизация прошла успешно.')
     } catch (error) {
@@ -48,16 +47,45 @@ class PostController {
 
       if (!id) throw ApiError.BadRequest('Ошибка во время выполнения.')
 
-      await Report.deleteMany({ testid: id })
-
       const resultT = await Test.findByIdAndDelete(id)
       if (!resultT) throw ApiError.BadRequest('Ошибка во время выполнения.')
+
+      await Report.deleteMany({ testid: id })
 
       for (const question of resultT.questions) {
         const resultQ = await Question.findByIdAndDelete(question._id)
         if (resultQ) {
           for (const answer of resultQ.answers) {
             await Answer.findByIdAndDelete(answer._id)
+          }
+        }
+      }
+
+      res.status(200).json('Данные успешно удалены.')
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async removeUsers(req, res, next) {
+    try {
+      const { users } = req.body
+
+      if (!users)
+        throw ApiError.BadRequest(
+          'Ошибка во время выполнения (данные не получены).'
+        )
+
+      for (const user of users) {
+        const ownTests = await Test.find({ creator: user })
+
+        await Token.findOneAndDelete({ user: user })
+        await Report.deleteMany({ userid: user })
+        await User.findByIdAndDelete(user)
+
+        if (ownTests) {
+          for (const test of ownTests) {
+            await testService.delete(test)
           }
         }
       }
@@ -126,7 +154,6 @@ class PostController {
         throw ApiError.BadRequest('Ошибка во время выполнения запроса.')
 
       const dateNow = new Date(Date.now())
-      dateNow.setTime(dateNow)
 
       for (const question of questions) {
         const answersDB = []
@@ -185,7 +212,6 @@ class PostController {
       if (report) throw ApiError.Conflict('Тест уже пройден.')
 
       const date = new Date(Date.now())
-      date.setTime(date)
 
       const result = await Report.create({
         testid,
@@ -205,94 +231,3 @@ class PostController {
 }
 
 module.exports = new PostController()
-
-// const role = await Role.findOne({ value: 'USER' })
-
-// const hashedPassword = await bcrypt.hash('10839983', 7)
-// const user = new User({
-//   email: 'admin@mail.ru',
-//   password: hashedPassword,
-//   username: 'Евгений',
-//   surname: 'Балабат',
-//   patronymic: 'Дмитриевич',
-//   roles: ['6209750711b33383509d12c3'],
-//   group: '6259a4349e05916246c64582'
-// })
-
-// await user.save()
-
-// const ans = new Answer({
-//   answer: 'Na2SO4'
-// })
-
-// await ans.save()
-
-// const terget = new Target({
-//   userid: '626062ef52c4983be64a9b28',
-//   testid: '62587afba6c23134b0d59119'
-// })
-
-// await terget.save()
-
-// const group8 = new Group({
-//   value: '11-A'
-// })
-
-// await group8.save()
-
-// const role = await Role.findOne({ value: 'USER' })
-
-// const hashedPassword = await bcrypt.hash('10839983', 7)
-// const user = new User({
-//   email: 'djek1099@mail.ru',
-//   password: hashedPassword,
-//   username: 'Евгений',
-//   surname: 'Балабат',
-//   patronymic: 'Дмитриевич',
-//   roles: ['6209750711b33383509d12c3'],
-//   group: '6259a4349e05916246c64582'
-// })
-
-// await user.save()
-
-// const mass_id = [
-//   '6258817427df7804bdc95c6f',
-//   '6258817427df7804bdc95c6d',
-//   '6258817427df7804bdc95c6e'
-// ]
-// const questions = []
-
-// for (const element of mass_id) {
-//   const result = await Question.findById(element).exec()
-//   if (result) questions.push(result._id)
-// }
-
-// const test = new Test({
-//   title: 'Тест по химии.',
-//   description: 'Тест по химии  для студентов 1 курса.',
-//   questions: [...questions]
-// })
-
-// test.save()
-
-// const question1 = new Question({
-//   title:
-//     'Определите, у атомов каких из указанных в ряду элементов в основном состоянии отсутствуют неспаренные электроны. ',
-//   singleAnswer: false,
-//   answers: ['Si', 'S', 'F', 'Zn', 'Ar']
-// })
-// const question2 = new Question({
-//   title:
-//     'з числа указанных в ряду элементов выберите два элемента, которые в составе образованных ими анионов с общей формулой ЭOx2- – могут иметь одинаковую степень окисления',
-//   singleAnswer: false,
-//   answers: ['Si', 'S', 'F', 'Zn', 'Ar']
-// })
-// const question3 = new Question({
-//   title:
-//     'Из предложенного перечня выберите два вещества молекулярного строения с ковалентной полярной связью.',
-//   singleAnswer: false,
-//   answers: ['Na2SO4', 'HCOOH', 'CH4', 'CaO', 'Cl2']
-// })
-// await question3.save()
-// await question1.save()
-// await question2.save()

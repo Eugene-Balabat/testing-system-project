@@ -8,9 +8,10 @@ const nodemailer = require('nodemailer')
 const config = require('../config/default.json')
 
 class UserService {
-  async login(email, password) {
+  async login(email, password, remember) {
     const user = await User.findOne({ email })
     const roles = []
+
     if (!user)
       throw ApiError.Conflict('Ползователь с таким email не существует.')
 
@@ -24,7 +25,8 @@ class UserService {
 
     const userDto = new UserDto(user) // id, email
     const tokens = tokenService.generateTokens({
-      ...userDto
+      ...userDto,
+      remember
     })
 
     await tokenService.saveToken(userDto.id, tokens.refreshToken)
@@ -36,6 +38,7 @@ class UserService {
     if (!refreshToken) throw ApiError.UnauthorizedError()
 
     const userData = tokenService.validationRefreshToken(refreshToken)
+
     const dbToken = tokenService.findToken(refreshToken)
     const roles = []
 
@@ -52,7 +55,8 @@ class UserService {
 
     const userDto = new UserDto(user) // id, email
     const tokens = tokenService.generateTokens({
-      ...userDto
+      ...userDto,
+      remember: userData.payload.remember
     })
 
     await tokenService.saveToken(userDto.id, tokens.refreshToken)
@@ -82,17 +86,22 @@ class UserService {
       }
     })
 
-    const result = await transporter.sendMail({
-      from: config.email,
-      to: email,
-      subject: `Данные зарегистрированного пользователя на ресурсе ${config.api_url}`,
-      text: 'Пожалуйста сохраните данные логин и пароль, прежде чем удалять это сообщение.',
-      html: `<div>
+    await transporter.sendMail(
+      {
+        from: config.email,
+        to: email,
+        subject: `Данные зарегистрированного пользователя на ресурсе ${config.api_url}`,
+        text: 'Пожалуйста сохраните данные логин и пароль, прежде чем удалять это сообщение.',
+        html: `<div>
           <p>Логин: ${email}</p>
           <p>Пароль: ${password}</p>
           <a href=${config.api_url}>Ссылка для авторизации</a>
         </div>`
-    })
+      },
+      error => {
+        if (error) console.log('error')
+      }
+    )
   }
 }
 

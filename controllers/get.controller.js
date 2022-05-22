@@ -3,8 +3,6 @@ const User = require('../models/User')
 const userService = require('../services/user-service')
 const testService = require('../services/test-service')
 const ApiError = require('../exceptions/api-error')
-const Question = require('../models/Question')
-const Answer = require('../models/Answer')
 const Group = require('../models/Group')
 const Report = require('../models/Report')
 const Role = require('../models/Role')
@@ -71,6 +69,100 @@ class GetController {
     }
   }
 
+  async getPersonalReportData(req, res, next) {
+    try {
+      const { reportid } = req.headers
+
+      if (!reportid)
+        throw ApiError.BadRequest('Ошибка во время выполнения запроса.')
+
+      const report = await Report.findById(reportid)
+      if (!report) throw ApiError.NotFound('Не найден отчет по данному тесту.')
+
+      const test = await Test.findById(report.testid)
+      if (!test) throw ApiError.NotFound('Данные теста не найдены.')
+
+      const user = await User.findById(report.userid)
+      if (!user)
+        throw ApiError.NotFound(
+          'Пользователь, связанный с данным тестом - отсутсвтует.'
+        )
+
+      const group = await Group.findById(user.group)
+      if (!group)
+        throw ApiError.NotFound(
+          'Группа, для которой был создан тест не найдена.'
+        )
+
+      res.status(200).json({
+        user: {
+          name: user.username,
+          surname: user.surname,
+          patronymic: user.patronymic,
+          group: group.value
+        },
+        reportData: report.data,
+        testData: { title: test.title, description: test.description },
+        date: report.date
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async getRemoveUserData(req, res, next) {
+    try {
+      const { userroles } = req.headers
+      const resData = []
+
+      if (!userroles)
+        throw ApiError.BadRequest('Ошибка во время получения данных.')
+
+      if (!userroles.includes('ADMIN'))
+        throw ApiError.BadRequest(
+          'Прав доступа недостаточно для осуществления операции.'
+        )
+
+      const rolesDB = await Role.find({})
+      if (!rolesDB)
+        throw ApiError.BadRequest(
+          'Ошибка во время выполнения запроса (Роли не найдены).'
+        )
+
+      const groupsDB = await Group.find({})
+      if (!groupsDB)
+        throw ApiError.BadRequest(
+          'Ошибка во время выполнения запроса (Группы не найдены).'
+        )
+
+      const usersDB = await User.find()
+      if (!usersDB)
+        throw ApiError.BadRequest(
+          'Ошибка во время выполнения запроса (Пользователи не найдены).'
+        )
+
+      for (const group of groupsDB) {
+        const users = await User.find({ group: group._id })
+        if (users && users.length) resData.push({ item: group, users })
+      }
+
+      for (const role of rolesDB) {
+        if (role.value !== 'USER-S') {
+          const users = []
+
+          for (const user of usersDB) {
+            if (user.roles.includes(role._id)) users.push(user)
+          }
+          if (users.length) resData.push({ item: role, users })
+        }
+      }
+
+      res.status(200).json([...resData])
+    } catch (error) {
+      next(error)
+    }
+  }
+
   async getTestData(req, res, next) {
     try {
       const { testid } = req.headers
@@ -92,6 +184,7 @@ class GetController {
     try {
       const restests = []
       const resgroups = []
+
       const tests = await Test.find({})
       if (!tests) throw ApiError.NotFound()
 
@@ -103,6 +196,7 @@ class GetController {
           if (!resgroups.find(element => element.value === candidat.value))
             resgroups.push(candidat)
         }
+
         if (test.dateclose > now) restests.push({ test: test, active: true })
         else restests.push({ test: test, active: false })
       }
@@ -138,6 +232,66 @@ class GetController {
       }
 
       res.status(200).json({ tests: [...resTests] })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async getTestResults(req, res, next) {
+    try {
+      const { testid } = req.headers
+
+      const resGroups = []
+      const resReports = []
+
+      if (!testid)
+        throw ApiError.BadRequest('Ошибка во время выполнения запроса.')
+
+      const test = await Test.findById(testid)
+      const reports = await Report.find({ testid })
+
+      if (!test) throw ApiError.NotFound('Данные теста не найдены.')
+
+      for (const id of test.groups) {
+        const group = await Group.findById(id)
+        if (group) resGroups.push(group)
+      }
+
+      if (!resGroups.length) {
+        await testService.delete(test)
+        throw ApiError.BadRequest(
+          'Тест не предназначался ни для одной из групп.'
+        )
+      }
+
+      if (reports) {
+        for (const report of reports) {
+          const user = await User.findById(report.userid)
+
+          if (!user) await Report.findByIdAndDelete(report._id)
+          else {
+            const group = await Group.findById(user.group)
+
+            if (!group) await Report.findByIdAndDelete(report._id)
+            else {
+              const data = testService.getAnswerData(report)
+
+              resReports.push({
+                user: {
+                  name: user.username,
+                  surname: user.surname,
+                  patronymic: user.patronymic
+                },
+                group: group._id,
+                data: { ...data, id: report._id },
+                date: report.date
+              })
+            }
+          }
+        }
+      }
+
+      res.status(200).json({ groups: [...resGroups], reports: [...resReports] })
     } catch (error) {
       next(error)
     }

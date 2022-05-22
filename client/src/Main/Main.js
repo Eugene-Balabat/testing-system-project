@@ -22,7 +22,7 @@ const Main = () => {
   const [groups, setGroups] = useState([])
   const [toast, setToast] = useState(null)
 
-  const openRequest = async () => {
+  const openDeffRequest = async () => {
     try {
       let response = null
       const localtests = []
@@ -154,7 +154,7 @@ const Main = () => {
 
   useEffect(() => {
     if (groups.length) {
-      if (valueList)
+      valueList &&
         groups.forEach(element => {
           valueList.class.groups.push({
             title: 'Класс ' + element.value,
@@ -182,10 +182,11 @@ const Main = () => {
     asyncWrapper()
 
     store.setToastAuth(null)
+    store.setToastReport(null)
   }, [])
 
   useEffect(() => {
-    if (role) openRequest()
+    if (role) openDeffRequest()
   }, [role])
 
   useEffect(() => {
@@ -235,10 +236,8 @@ const Main = () => {
           />
         </div>
       </div>
-
       <div class='row row-cols-1 row-cols-md-3 g-4 justify-content-center m-0'>
         {output.map(element => {
-          console.log(element)
           const createdDate = new Date(Date.parse(element.date)) // convert db date to milliseconds
           createdDate.setTime(createdDate) // convert from milliseconds to full date
           const resCreatedDate = new Intl.DateTimeFormat('ru').format(

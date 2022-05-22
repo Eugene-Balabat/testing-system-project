@@ -45,6 +45,7 @@ const CreationForm = () => {
     }
 
     store.setToastMain(null)
+    store.setToastReport(null)
 
     return () => {
       localStorage.removeItem('dataCP')
@@ -268,14 +269,8 @@ const CreationForm = () => {
     if (localDate.data === '') localDate.warning = true
     else {
       const dateNow = new Date(Date.now())
-      dateNow.setTime(dateNow)
 
-      const convertedDateNow = new Intl.DateTimeFormat('ru').format(dateNow)
-      const convertedDateInput = new Intl.DateTimeFormat('ru').format(
-        new Date(localDate.data)
-      )
-
-      convertedDateNow < convertedDateInput
+      dateNow < new Date(localDate.data)
         ? (localDate.warning = false)
         : (localDate.warning = true)
     }

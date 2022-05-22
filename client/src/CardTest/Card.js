@@ -3,7 +3,7 @@ import { Col } from 'react-bootstrap'
 const Card = props => {
   return (
     <div class='col m-0'>
-      <div class='card  my-3 '>
+      <div class='card my-3 '>
         <div class='card-body'>
           <h5 class={`card-title ${!props.data.active && ` opacity-50`}`}>
             {props.data.title}

@@ -4,7 +4,9 @@ import Main from './Main/Main'
 import Layout from './Layout'
 import Test from './Test/Test'
 import CreationForm from './CreationForm/CreationForm'
-import UserForm from './User/UserForm'
+import Result from './Result/Result'
+import NewUser from './User/NewUser'
+import RemoveUser from './User/RemoveUser'
 
 const AppRoutes = () => {
   return (
@@ -12,12 +14,16 @@ const AppRoutes = () => {
       <Route path='/' element={<Layout />}>
         <Route index element={<Main />} />
         <Route path='/main' element={<Main />} />
+        <Route path='/result/:testid' element={<Result />} />
         <Route path='/login' element={<Login />} />
-        <Route path='/newuser' element={<UserForm />} />
+        <Route path='/newuser' element={<NewUser />} />
+        <Route path='/removeuser' element={<RemoveUser />} />
         <Route path='/newtest' element={<CreationForm />}>
           <Route path=':testid' element={<CreationForm />} />
         </Route>
-        <Route path='/test/:id' element={<Test />} />
+        <Route path='/test' element={<Test />}>
+          <Route path=':type/:id' element={<Test />} />
+        </Route>
         <Route path='*' element={<Main />} />
       </Route>
     </Routes>

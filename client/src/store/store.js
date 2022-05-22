@@ -4,7 +4,7 @@ import { API_URL } from '../config'
 import api from '../http'
 
 export default class Store {
-  toasts = { main: null, auth: null }
+  toasts = { main: null, auth: null, report: null }
   user = { id: null, roles: [], personalinfo: null }
   isAuth = null
 
@@ -20,6 +20,13 @@ export default class Store {
     this.toasts = {
       ...this.toasts,
       main
+    }
+  }
+
+  setToastReport(report = null) {
+    this.toasts = {
+      ...this.toasts,
+      report
     }
   }
 
@@ -49,15 +56,13 @@ export default class Store {
 
   async logout() {
     try {
-      await api.post(API_URL + '/api/post/logout', {
-        iduser: localStorage.getItem('userid')
-      })
+      await api.post(API_URL + '/api/post/logout')
+
+      this.clearUserData()
     } catch (error) {
       error.response
         ? console.log(error.response.data.message)
         : console.log(error.message)
-    } finally {
-      this.clearUserData()
     }
   }
 

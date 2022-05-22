@@ -13,7 +13,7 @@ const ItemT = props => {
         <Row className='m-0 p-0 px-2'>
           <p className='fs-5 p-0'>{props.currentData.title}</p>
         </Row>
-        <Row className='m-0 p-0 px-3'>
+        <Row className='m-0 p-0 px-4'>
           {props.currentData.options.map(option => {
             if (props.currentData.type)
               return (
@@ -22,6 +22,7 @@ const ItemT = props => {
                   idItem={props.currentData.id}
                   setOptionState={props.setOptionState}
                   role={props.currentData.role}
+                  typePage={props.currentData.typePage}
                 />
               )
             else if (!props.currentData.type)
@@ -31,6 +32,7 @@ const ItemT = props => {
                   idItem={props.currentData.id}
                   setOptionState={props.setOptionState}
                   role={props.currentData.role}
+                  typePage={props.currentData.typePage}
                 />
               )
             else return <></>

@@ -9,8 +9,9 @@ import { toJS } from 'mobx'
 
 const Login = () => {
   const [inputs, setInputs] = useState(() => {
-    return { emailI: '', passwordI: '', rememberI: null }
+    return { emailI: '', passwordI: '', rememberI: false }
   })
+
   const [toast, setToast] = useState(null)
 
   const { store } = useContext(Context)
@@ -20,7 +21,8 @@ const Login = () => {
     try {
       const response = await api.post(API_URL + '/api/post/auth', {
         email: inputs.emailI,
-        password: inputs.passwordI
+        password: inputs.passwordI,
+        remember: inputs.rememberI
       })
 
       store.setAuth(true)

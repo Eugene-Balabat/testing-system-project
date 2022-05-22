@@ -5,8 +5,9 @@ import { useNavigate } from 'react-router-dom'
 import { API_URL } from '../config'
 import api from '../http'
 import { observer } from 'mobx-react-lite'
+import validator from 'validator'
 
-const UserForm = () => {
+const NewUser = () => {
   const { store } = useContext(Context)
   const navigate = useNavigate()
 
@@ -38,6 +39,7 @@ const UserForm = () => {
     } else setFormData({ ...initialState })
 
     store.setToastMain(null)
+    store.setToastReport(null)
 
     return () => {
       localStorage.removeItem('dataForm')
@@ -186,7 +188,7 @@ const UserForm = () => {
       ? (localPatronymic.warning = true)
       : (localPatronymic.warning = false)
 
-    localEmail.data === ''
+    localEmail.data === '' || !validator.isEmail(localEmail.data)
       ? (localEmail.warning = true)
       : (localEmail.warning = false)
 
@@ -293,7 +295,7 @@ const UserForm = () => {
             placeholder='Фамилия'
             value={formData && formData.surname.data}
             className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
-              formData && formData.surname.warning && `border-danger`
+              formData && formData.surname.warning && `is-invalid`
             }`}
             type='text'
             onChange={event => {
@@ -309,7 +311,7 @@ const UserForm = () => {
             placeholder='Имя'
             value={formData && formData.name.data}
             className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
-              formData && formData.name.warning && `border-danger`
+              formData && formData.name.warning && `is-invalid`
             }`}
             type='text'
             onChange={event => {
@@ -325,7 +327,7 @@ const UserForm = () => {
             placeholder='Отчество'
             value={formData && formData.patronymic.data}
             className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
-              formData && formData.patronymic.warning && `border-danger`
+              formData && formData.patronymic.warning && `is-invalid`
             }`}
             type='text'
             onChange={event => {
@@ -344,7 +346,7 @@ const UserForm = () => {
             placeholder='Электронная почта'
             value={formData && formData.email.data}
             className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
-              formData && formData.email.warning && `border-danger`
+              formData && formData.email.warning && `is-invalid`
             }`}
             type='email'
             onChange={event => {
@@ -360,7 +362,7 @@ const UserForm = () => {
             placeholder='Пароль'
             value={formData && formData.password.data}
             className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
-              formData && formData.password.warning && `border-danger`
+              formData && formData.password.warning && `is-invalid`
             }`}
             type='text'
             onChange={event => {
@@ -492,4 +494,4 @@ const UserForm = () => {
   )
 }
 
-export default observer(UserForm)
+export default observer(NewUser)
