@@ -7,5 +7,6 @@
   "smtp_port": 587,
   "email": "eugene.balabat@gmail.com",
   "password": "wdolnqdvasmbnoak",
-  "api_url": "http://localhost:3000"
+  "api_url": "http://localhost:3000",
+  "api_host": "https://test-service-app.herokuapp.com"
 }

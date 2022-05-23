@@ -14,7 +14,6 @@ const RemoveUser = () => {
   const navigate = useNavigate()
 
   const [pageData, setPageData] = useState([])
-  const [sendStatus, setSendStatus] = useState(false)
 
   const [toast, setToast] = useState(null)
 
@@ -129,11 +128,6 @@ const RemoveUser = () => {
             data: error.response.data.message || 'Непредвиденная ошибка'
           })
           navigate('/main')
-        } else if (error.response.status === 409) {
-          setToast({
-            data: error.response.data.message || 'Непредвиденная ошибка'
-          })
-          console.log(error.response.data.message || 'Непредвиденная ошибка')
         } else
           console.log(error.response.data.message || 'Непредвиденная ошибка')
       } else console.log(error)
@@ -161,11 +155,6 @@ const RemoveUser = () => {
             data: error.response.data.message || 'Непредвиденная ошибка'
           })
           navigate('/main')
-        } else if (error.response.status === 409) {
-          setToast({
-            data: error.response.data.message || 'Непредвиденная ошибка'
-          })
-          console.log(error.response.data.message || 'Непредвиденная ошибка')
         } else
           console.log(error.response.data.message || 'Непредвиденная ошибка')
       } else console.log(error)

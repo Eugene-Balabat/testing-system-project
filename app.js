@@ -9,7 +9,10 @@ const app = express()
 
 const port = process.env.PORT || config.get('port') || 5000
 
-var allowlist = ['http://localhost:3000']
+var allowlist = [
+  'http://localhost:3000',
+  'https://test-service-app.herokuapp.com'
+]
 var corsOptionsDelegate = function (req, callback) {
   var corsOptions
   if (allowlist.indexOf(req.header('Origin')) !== -1) {

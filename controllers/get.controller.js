@@ -250,7 +250,7 @@ class GetController {
       const test = await Test.findById(testid)
       const reports = await Report.find({ testid })
 
-      if (!test) throw ApiError.NotFound('Данные теста не найдены.')
+      if (!test) throw ApiError.BadRequest('Данные теста не найдены.')
 
       for (const id of test.groups) {
         const group = await Group.findById(id)

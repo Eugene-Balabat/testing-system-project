@@ -95,7 +95,7 @@ class UserService {
         html: `<div>
           <p>Логин: ${email}</p>
           <p>Пароль: ${password}</p>
-          <a href=${config.api_url}>Ссылка для авторизации</a>
+          <a href=${config.api_host}>Ссылка для авторизации</a>
         </div>`
       },
       error => {
