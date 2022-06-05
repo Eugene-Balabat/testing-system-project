@@ -27,6 +27,7 @@ const CreationForm = () => {
     description: { data: '', warning: false },
     closeDate: { data: '', warning: false },
     groups: { data: [], warning: false },
+    creator: null,
     warning: false
   }
 
@@ -157,7 +158,7 @@ const CreationForm = () => {
         title: formData.title.data,
         description: formData.description.data,
         dateclose: formData.closeDate.data,
-        creator: store.user.id || localStorage.getItem('userid'),
+        creator: formData.creator || store.user.id,
         groups: [...exportGroups],
         questions: [...exportQuestions]
       })
@@ -223,6 +224,7 @@ const CreationForm = () => {
         ...initialState.closeDate,
         data: new Date(testData.closeDate).toLocaleDateString('en-CA')
       },
+      creator: testData.creator,
       groups: { ...initialState.groups, data: [...convertedGroups] },
       items: [...convertedItems]
     })
@@ -397,7 +399,7 @@ const CreationForm = () => {
     })
   }
 
-  const addOption = (idItem, textOption) => {
+  const addOption = (idItem, textOption = '') => {
     setFormData({
       ...formData,
       items: [

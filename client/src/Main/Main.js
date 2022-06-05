@@ -8,6 +8,7 @@ import { useContext, useEffect, useState } from 'react'
 import { API_URL } from '../config'
 import api from '../http'
 import { toJS } from 'mobx'
+import Cookies from 'js-cookie'
 
 const Main = () => {
   const { store } = useContext(Context)
@@ -27,6 +28,8 @@ const Main = () => {
       let response = null
       const localtests = []
 
+      //console.log({...Cookies.get()})
+
       if (role === 'T' || role === 'A') {
         response = await api.get(API_URL + '/api/get/getTests')
         setGroups([...response.data.groups])
@@ -37,9 +40,11 @@ const Main = () => {
       }
 
       response.data.tests.forEach(element => {
-        const test = element.test
-        test.active = element.active
-        localtests.push(test)
+        localtests.push({
+          ...element.test,
+          active: element.active,
+          reportid: element.reportid
+        })
       })
 
       setTests([...localtests])

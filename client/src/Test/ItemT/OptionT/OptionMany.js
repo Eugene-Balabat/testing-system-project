@@ -10,7 +10,9 @@ const OptionMany = props => {
         id={props.data._id}
         checked={props.data.checked}
         aria-describedby={props.idItem}
-        disabled={props.role === 'T' || props.role === 'A'}
+        disabled={
+          props.role === 'T' || props.role === 'A' || props.typePage === 'R'
+        }
         onChange={() => {
           props.setOptionState(props.data._id, props.idItem)
         }}

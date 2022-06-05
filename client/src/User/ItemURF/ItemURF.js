@@ -1,5 +1,6 @@
-import { Row, Col, Form } from 'react-bootstrap'
+import { Row } from 'react-bootstrap'
 import OptionRF from './OptionRF/OptionRF'
+import OptionUF from './OptionUF/OptionUF'
 
 const ItemRF = props => {
   return (
@@ -28,20 +29,36 @@ const ItemRF = props => {
         <div class='accordion-body'>
           {props.users.map((element, index) => {
             return (
-              <>
-                <OptionRF
+              (props.pageType === 'R' && (
+                <>
+                  <OptionRF
+                    id={element._id}
+                    name={element.username}
+                    surname={element.surname}
+                    patronymic={element.patronymic}
+                    active={element.active}
+                    changeActiveOptionState={props.changeActiveOptionState}
+                  />
+
+                  {index !== props.users.length - 1 && (
+                    <Row className='border border-1 my-2 mx-4'></Row>
+                  )}
+                </>
+              )) ||
+              (props.pageType === 'U' && (
+                <OptionUF
                   id={element._id}
                   name={element.username}
                   surname={element.surname}
                   patronymic={element.patronymic}
                   active={element.active}
+                  warning={element.warning}
                   changeActiveOptionState={props.changeActiveOptionState}
+                  setSurnameValue={props.setSurnameValue}
+                  setNameValue={props.setNameValue}
+                  setPatronymicValue={props.setPatronymicValue}
                 />
-
-                {index !== props.users.length - 1 && (
-                  <Row className='border border-1 my-2 mx-4'></Row>
-                )}
-              </>
+              ))
             )
           })}
         </div>

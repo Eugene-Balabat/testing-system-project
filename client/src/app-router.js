@@ -7,6 +7,7 @@ import CreationForm from './CreationForm/CreationForm'
 import Result from './Result/Result'
 import NewUser from './User/NewUser'
 import RemoveUser from './User/RemoveUser'
+import UpdateUser from './User/UpdateUser'
 
 const AppRoutes = () => {
   return (
@@ -18,6 +19,7 @@ const AppRoutes = () => {
         <Route path='/login' element={<Login />} />
         <Route path='/newuser' element={<NewUser />} />
         <Route path='/removeuser' element={<RemoveUser />} />
+        <Route path='/updateuser' element={<UpdateUser />} />
         <Route path='/newtest' element={<CreationForm />}>
           <Route path=':testid' element={<CreationForm />} />
         </Route>

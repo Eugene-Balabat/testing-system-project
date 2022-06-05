@@ -6,6 +6,7 @@ import api from '../http'
 import { Context } from '../index'
 import { observer } from 'mobx-react-lite'
 import { toJS } from 'mobx'
+import Cookies from 'js-cookie'
 
 const Login = () => {
   const [inputs, setInputs] = useState(() => {
@@ -24,6 +25,9 @@ const Login = () => {
         password: inputs.passwordI,
         remember: inputs.rememberI
       })
+
+      console.log(`Cookie ${Cookies.get('refreshToken')}`)
+      console.log(`Response ${response}`)
 
       store.setAuth(true)
 
@@ -85,75 +89,79 @@ const Login = () => {
       <Container className='w-28'>
         <Row className='my-auto'>
           <Col>
-            <div className='border border-3 rounded-3 p-4'>
-              <div class='row mb-3'>
-                <div className='col'>
-                  <FloatingLabel
-                    controlId='floatingInput'
-                    className='noselect'
-                    label='Логин'
-                  >
-                    <Form.Control
-                      type='email'
-                      className='rounded-2'
-                      placeholder='name@example.com'
-                      value={inputs.emailI}
-                      onChange={event => setEmailIValue(event.target.value)}
-                    />
-                  </FloatingLabel>
-                  {/* <div id='emailHelp' class='form-text'>
+            <Form onSubmit={event => event.preventDefault()}>
+              <div className='border border-3 rounded-3 p-4'>
+                <div class='row mb-3'>
+                  <div className='col'>
+                    <FloatingLabel
+                      controlId='floatingInput'
+                      className='noselect'
+                      label='Логин'
+                    >
+                      <Form.Control
+                        type='email'
+                        className='rounded-2'
+                        placeholder='name@example.com'
+                        value={inputs.emailI}
+                        onChange={event => setEmailIValue(event.target.value)}
+                      />
+                    </FloatingLabel>
+                    {/* <div id='emailHelp' class='form-text'>
                 We'll never share your email with anyone else.
                   </div> */}
-                </div>
-              </div>
-              <div class='row mb-3'>
-                <div className='col'>
-                  <FloatingLabel
-                    controlId='floatingPassword'
-                    className='noselect'
-                    label='Пароль'
-                  >
-                    <Form.Control
-                      type='password'
-                      className='rounded-2'
-                      placeholder='Password'
-                      value={inputs.passwordI}
-                      onChange={event => setPasswordIValue(event.target.value)}
-                    />
-                  </FloatingLabel>
-                </div>
-              </div>
-              <div class='row'>
-                <div className='col-auto px-3 me-auto align-self-center'>
-                  <div class='form-check'>
-                    <input
-                      type='checkbox'
-                      class='form-check-input'
-                      id='exampleCheck1'
-                      onChange={event =>
-                        setRememberIValue(event.target.checked)
-                      }
-                      checked={inputs.rememberI}
-                    />
-                    <label
-                      class='form-check-label noselect'
-                      for='exampleCheck1'
-                    >
-                      Запомнить меня
-                    </label>
                   </div>
                 </div>
-                <div className='col-auto'>
-                  <button
-                    type='submit'
-                    class='btn btn-outline-secondary'
-                    onClick={() => clickToAuth()}
-                  >
-                    Вход
-                  </button>
+                <div class='row mb-3'>
+                  <div className='col'>
+                    <FloatingLabel
+                      controlId='floatingPassword'
+                      className='noselect'
+                      label='Пароль'
+                    >
+                      <Form.Control
+                        type='password'
+                        className='rounded-2'
+                        placeholder='Password'
+                        value={inputs.passwordI}
+                        onChange={event =>
+                          setPasswordIValue(event.target.value)
+                        }
+                      />
+                    </FloatingLabel>
+                  </div>
+                </div>
+                <div class='row'>
+                  <div className='col-auto px-3 me-auto align-self-center'>
+                    <div class='form-check'>
+                      <input
+                        type='checkbox'
+                        class='form-check-input'
+                        id='exampleCheck1'
+                        onChange={event =>
+                          setRememberIValue(event.target.checked)
+                        }
+                        checked={inputs.rememberI}
+                      />
+                      <label
+                        class='form-check-label noselect'
+                        for='exampleCheck1'
+                      >
+                        Запомнить меня
+                      </label>
+                    </div>
+                  </div>
+                  <div className='col-auto'>
+                    <button
+                      type='submit'
+                      class='btn btn-outline-secondary'
+                      onClick={() => clickToAuth()}
+                    >
+                      Вход
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Form>
           </Col>
         </Row>
         {toast && (

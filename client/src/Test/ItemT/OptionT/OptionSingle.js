@@ -1,4 +1,5 @@
 const OptionSingle = props => {
+  console.log(props)
   return (
     <div className='form-check mb-2'>
       <input
@@ -10,7 +11,9 @@ const OptionSingle = props => {
         id={props.data._id}
         aria-describedby={props.idItem}
         checked={props.data.checked}
-        disabled={props.role === 'T' || props.role === 'A'}
+        disabled={
+          props.role === 'T' || props.role === 'A' || props.typePage === 'R'
+        }
         onChange={() => {
           props.setOptionState(props.data._id, props.idItem)
         }}

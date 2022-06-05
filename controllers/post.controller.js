@@ -18,6 +18,7 @@ class PostController {
 
       res
         .cookie('refreshToken', userData.refreshToken, {
+          sameSite: 'none',
           maxAge: 60 * 60 * 24 * 30 * 1000,
           httpOnly: true,
           secure: true
@@ -32,9 +33,7 @@ class PostController {
     try {
       const { refreshToken } = req.cookies
 
-      const result = await Token.findOneAndDelete({ refresh: refreshToken })
-      if (!result) throw ApiError.BadRequest('Ошибка во время деавторизации.')
-
+      await Token.findOneAndDelete({ refresh: refreshToken })
       res.status(200).json('Деавторизация прошла успешно.')
     } catch (error) {
       next(error)
@@ -91,6 +90,37 @@ class PostController {
       }
 
       res.status(200).json('Данные успешно удалены.')
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async updateUsers(req, res, next) {
+    try {
+      const { users } = req.body
+      console.log(users)
+
+      if (!users)
+        throw ApiError.BadRequest(
+          'Ошибка во время выполнения (данные не получены).'
+        )
+
+      for (const user of users) {
+        await User.updateOne(
+          {
+            _id: user._id
+          },
+          {
+            $set: {
+              surname: user.surname,
+              username: user.username,
+              patronymic: user.patronymic
+            }
+          }
+        )
+      }
+
+      res.status(200).json('Данные успешно обновлены.')
     } catch (error) {
       next(error)
     }

@@ -14,6 +14,7 @@ const RemoveUser = () => {
   const navigate = useNavigate()
 
   const [pageData, setPageData] = useState([])
+  const [sendStatus, setSendStatus] = useState(false)
 
   const [toast, setToast] = useState(null)
 
@@ -38,8 +39,100 @@ const RemoveUser = () => {
     }
   }, [store.user.roles])
 
+  useEffect(() => {
+    if (pageData.length) {
+      if (sendStatus) {
+        setSendStatus(false)
+        !checkOptionsWarnings() && sendRequest()
+      }
+    }
+  }, [pageData])
+
   const checkAuthUser = () => {
     if (!store.isAuth && !localStorage.getItem('accestoken')) navigate('/login')
+  }
+
+  const setWarningsPage = () => {
+    setPageData([
+      ...pageData.map(element => {
+        return {
+          ...element,
+          users: [
+            ...element.users.map(user => {
+              if (
+                user.surname === '' ||
+                user.username === '' ||
+                user.patronymic === ''
+              )
+                return { ...user, warning: true }
+              return { ...user, warning: false }
+            })
+          ]
+        }
+      })
+    ])
+
+    setSendStatus(true)
+  }
+
+  const checkOptionsWarnings = () => {
+    for (const group of pageData) {
+      for (const user of group.users) {
+        if (user.warning) return true
+      }
+    }
+    return false
+  }
+
+  const setSurnameValue = (idoption, value) => {
+    setPageData([
+      ...pageData.map(element => {
+        return {
+          ...element,
+          users: [
+            ...element.users.map(user => {
+              if (user._id === idoption)
+                return { ...user, active: true, surname: value }
+              return { ...user }
+            })
+          ]
+        }
+      })
+    ])
+  }
+
+  const setNameValue = (idoption, value) => {
+    setPageData([
+      ...pageData.map(element => {
+        return {
+          ...element,
+          users: [
+            ...element.users.map(user => {
+              if (user._id === idoption)
+                return { ...user, active: true, username: value }
+              return { ...user }
+            })
+          ]
+        }
+      })
+    ])
+  }
+
+  const setPatronymicValue = (idoption, value) => {
+    setPageData([
+      ...pageData.map(element => {
+        return {
+          ...element,
+          users: [
+            ...element.users.map(user => {
+              if (user._id === idoption)
+                return { ...user, active: true, patronymic: value }
+              return { ...user }
+            })
+          ]
+        }
+      })
+    ])
   }
 
   const converteData = maindata => {
@@ -53,7 +146,7 @@ const RemoveUser = () => {
           },
           users: [
             ...element.users.map(user => {
-              return { ...user, active: false }
+              return { ...user, active: false, warning: false }
             })
           ]
         }
@@ -103,18 +196,16 @@ const RemoveUser = () => {
 
       for (const item of pageData) {
         for (const user of item.users) {
-          user.active && !users.includes(user._id) && users.push(user._id)
+          user.active && !users.includes(user._id) && users.push(user)
         }
       }
 
       if (users.length) {
-        await api.post(API_URL + '/api/post/removeUsers', {
+        await api.post(API_URL + '/api/post/updateUsers', {
           users
         })
 
-        await store.checkAuth()
         await openRequest()
-
         jquerySetDeffStateAccordion()
       }
     } catch (error) {
@@ -174,9 +265,12 @@ const RemoveUser = () => {
                     value={element.item.value}
                     users={element.users}
                     show={element.item.show}
-                    pageType='R'
+                    pageType='U'
                     changeActiveOptionState={changeActiveOptionState}
                     changeActiveItemState={changeActiveItemState}
+                    setSurnameValue={setSurnameValue}
+                    setNameValue={setNameValue}
+                    setPatronymicValue={setPatronymicValue}
                   />
                 )
               })}
@@ -189,10 +283,10 @@ const RemoveUser = () => {
             className='btn btn-outline-secondary px-4'
             type='button'
             onClick={() => {
-              sendRequest()
+              setWarningsPage()
             }}
           >
-            Удалить
+            Сохранить
           </button>
         </Col>
       </Row>

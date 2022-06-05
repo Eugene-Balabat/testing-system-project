@@ -226,8 +226,13 @@ class GetController {
             testid: element._id,
             userid: user._id
           })
-          if (report) resTests.push({ test: element, active: false })
-          else resTests.push({ test: element, active: true })
+          if (report)
+            resTests.push({
+              test: element,
+              active: false,
+              reportid: report._id
+            })
+          else resTests.push({ test: element, active: true, reportid: null })
         }
       }
 

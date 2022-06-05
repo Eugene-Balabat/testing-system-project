@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { Context } from '../index'
-import { Row, Col, Container } from 'react-bootstrap'
+import { Row, Col, Container, Form } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import { API_URL } from '../config'
 import api from '../http'
@@ -289,207 +289,212 @@ const NewUser = () => {
 
   return (
     <Container className='my-5 w-50'>
-      <Row className='m-0 justify-content-center mt-5 pe-5'>
-        <Col>
-          <input
-            placeholder='Фамилия'
-            value={formData && formData.surname.data}
-            className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
-              formData && formData.surname.warning && `is-invalid`
-            }`}
-            type='text'
-            onChange={event => {
-              setFormData({
-                ...formData,
-                surname: { ...formData.surname, data: event.target.value }
-              })
-            }}
-          />
-        </Col>
-        <Col>
-          <input
-            placeholder='Имя'
-            value={formData && formData.name.data}
-            className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
-              formData && formData.name.warning && `is-invalid`
-            }`}
-            type='text'
-            onChange={event => {
-              setFormData({
-                ...formData,
-                name: { ...formData.name, data: event.target.value }
-              })
-            }}
-          />
-        </Col>
-        <Col>
-          <input
-            placeholder='Отчество'
-            value={formData && formData.patronymic.data}
-            className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
-              formData && formData.patronymic.warning && `is-invalid`
-            }`}
-            type='text'
-            onChange={event => {
-              setFormData({
-                ...formData,
-                patronymic: { ...formData.patronymic, data: event.target.value }
-              })
-            }}
-          />
-        </Col>
-      </Row>
-
-      <Row className='m-0 justify-content-center mt-5 pe-5'>
-        <Col>
-          <input
-            placeholder='Электронная почта'
-            value={formData && formData.email.data}
-            className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
-              formData && formData.email.warning && `is-invalid`
-            }`}
-            type='email'
-            onChange={event => {
-              setFormData({
-                ...formData,
-                email: { ...formData.email, data: event.target.value }
-              })
-            }}
-          />
-        </Col>
-        <Col>
-          <input
-            placeholder='Пароль'
-            value={formData && formData.password.data}
-            className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
-              formData && formData.password.warning && `is-invalid`
-            }`}
-            type='text'
-            onChange={event => {
-              setFormData({
-                ...formData,
-                password: { ...formData.password, data: event.target.value }
-              })
-            }}
-          />
-        </Col>
-      </Row>
-      <Row className='m-0 justify-content-center mt-5 pe-5'>
-        <Col>
-          <div class='col-auto p-0 align-self-center'>
-            <p
-              className={`btn fs-6 m-0 text-secondary ${
-                formData && formData.roles.warning && `text-danger`
+      <Form onSubmit={event => event.preventDefault()}>
+        <Row className='m-0 justify-content-center mt-5 pe-5'>
+          <Col>
+            <input
+              placeholder='Фамилия'
+              value={formData && formData.surname.data}
+              className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
+                formData && formData.surname.warning && `is-invalid`
               }`}
-              data-bs-toggle='collapse'
-              role='button'
-              aria-expanded='false'
-              data-bs-target='#collapseExample1'
-              aria-controls='collapseExample1'
-            >
-              Выбрать роль
-            </p>
-          </div>
-          <div class='collapse' id='collapseExample1'>
-            <div className={`card border-0`}>
-              <div class='row row-cols-1 row-cols-md-auto g-1 justify-content-center card-body m-0 py-2'>
-                {formData &&
-                  formData.roles.data.map(role => {
-                    return (
-                      <div className='col form-check mx-3 my-2'>
-                        <input
-                          className='form-check-input'
-                          type='checkbox'
-                          id={role._id}
-                          checked={role.active}
-                          name='flexRadioDefault'
-                          aria-describedby='collapseExample'
-                          onChange={() => {
-                            changeRoleState(role._id)
-                          }}
-                        />
-                        <label
-                          className='form-check-label text-muted'
-                          for={role._id}
-                        >
-                          {(role.value === 'USER-S' && 'Ученик') ||
-                            (role.value === 'USER-T' && 'Учитель') ||
-                            (role.value === 'ADMIN' && 'Админ...')}
-                        </label>
-                      </div>
-                    )
-                  })}
-              </div>
-            </div>
-          </div>
-        </Col>
-        <Col>
-          <div class='col-auto p-0 align-self-center'>
-            <p
-              className={`btn fs-6 m-0 text-secondary ${
-                formData && formData.groups.disable && `disabled`
-              } ${formData && formData.groups.warning && `text-danger`}`}
-              data-bs-toggle='collapse'
-              role='button'
-              aria-expanded='false'
-              data-bs-target='#collapseExample2'
-              aria-controls='collapseExample2'
-            >
-              Выбрать класс
-            </p>
-          </div>
-          <div class='collapse' id='collapseExample2'>
-            <div className={`card border-0`}>
-              <div class='row row-cols-1 row-cols-md-auto g-1 justify-content-center card-body m-0 py-2'>
-                {formData &&
-                  formData.groups.data.map(group => {
-                    return (
-                      <div className='col form-check mx-3 my-2'>
-                        <input
-                          className='form-check-input'
-                          type='radio'
-                          id={group._id}
-                          name='flexRadioDefault'
-                          aria-describedby='collapseExample'
-                          checked={group.active}
-                          onChange={() => {
-                            changeGroupState(group._id)
-                          }}
-                        />
-                        <label
-                          className='form-check-label text-muted'
-                          for={group._id}
-                        >
-                          {`Класс ${group.value}`}
-                        </label>
-                      </div>
-                    )
-                  })}
-              </div>
-            </div>
-          </div>
-        </Col>
-      </Row>
-      <Row className='align-items-center m-0 mt-5'>
-        <Col className='col-auto p-0 ms-auto'>
-          <button
-            className='btn btn-outline-secondary px-4'
-            type='button'
-            onClick={() => {
-              setWarningsPage()
-            }}
-          >
-            Сохранить
-          </button>
-        </Col>
-      </Row>
-      {toast && (
-        <Row className='justify-content-center mt-4 '>
-          <Col className='col-auto p-0'>
-            <p class='text-center text-danger m-0'>{`Во время выполнения запроса произошло исключение: ${toast.data}`}</p>
+              type='text'
+              onChange={event => {
+                setFormData({
+                  ...formData,
+                  surname: { ...formData.surname, data: event.target.value }
+                })
+              }}
+            />
+          </Col>
+          <Col>
+            <input
+              placeholder='Имя'
+              value={formData && formData.name.data}
+              className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
+                formData && formData.name.warning && `is-invalid`
+              }`}
+              type='text'
+              onChange={event => {
+                setFormData({
+                  ...formData,
+                  name: { ...formData.name, data: event.target.value }
+                })
+              }}
+            />
+          </Col>
+          <Col>
+            <input
+              placeholder='Отчество'
+              value={formData && formData.patronymic.data}
+              className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
+                formData && formData.patronymic.warning && `is-invalid`
+              }`}
+              type='text'
+              onChange={event => {
+                setFormData({
+                  ...formData,
+                  patronymic: {
+                    ...formData.patronymic,
+                    data: event.target.value
+                  }
+                })
+              }}
+            />
           </Col>
         </Row>
-      )}
+
+        <Row className='m-0 justify-content-center mt-5 pe-5'>
+          <Col>
+            <input
+              placeholder='Электронная почта'
+              value={formData && formData.email.data}
+              className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
+                formData && formData.email.warning && `is-invalid`
+              }`}
+              type='email'
+              onChange={event => {
+                setFormData({
+                  ...formData,
+                  email: { ...formData.email, data: event.target.value }
+                })
+              }}
+            />
+          </Col>
+          <Col>
+            <input
+              placeholder='Пароль'
+              value={formData && formData.password.data}
+              className={`form-control shadow-none border-start-0 border-end-0 border-top-0 border-3 rounded-0 ${
+                formData && formData.password.warning && `is-invalid`
+              }`}
+              type='text'
+              onChange={event => {
+                setFormData({
+                  ...formData,
+                  password: { ...formData.password, data: event.target.value }
+                })
+              }}
+            />
+          </Col>
+        </Row>
+        <Row className='m-0 justify-content-center mt-5 pe-5'>
+          <Col>
+            <div class='col-auto p-0 align-self-center'>
+              <p
+                className={`btn fs-6 m-0 text-secondary ${
+                  formData && formData.roles.warning && `text-danger`
+                }`}
+                data-bs-toggle='collapse'
+                role='button'
+                aria-expanded='false'
+                data-bs-target='#collapseExample1'
+                aria-controls='collapseExample1'
+              >
+                Выбрать роль
+              </p>
+            </div>
+            <div class='collapse' id='collapseExample1'>
+              <div className={`card border-0`}>
+                <div class='row row-cols-1 row-cols-md-auto g-1 justify-content-center card-body m-0 py-2'>
+                  {formData &&
+                    formData.roles.data.map(role => {
+                      return (
+                        <div className='col form-check mx-3 my-2'>
+                          <input
+                            className='form-check-input'
+                            type='checkbox'
+                            id={role._id}
+                            checked={role.active}
+                            name='flexRadioDefault'
+                            aria-describedby='collapseExample'
+                            onChange={() => {
+                              changeRoleState(role._id)
+                            }}
+                          />
+                          <label
+                            className='form-check-label text-muted'
+                            for={role._id}
+                          >
+                            {(role.value === 'USER-S' && 'Ученик') ||
+                              (role.value === 'USER-T' && 'Учитель') ||
+                              (role.value === 'ADMIN' && 'Админ...')}
+                          </label>
+                        </div>
+                      )
+                    })}
+                </div>
+              </div>
+            </div>
+          </Col>
+          <Col>
+            <div class='col-auto p-0 align-self-center'>
+              <p
+                className={`btn fs-6 m-0 text-secondary ${
+                  formData && formData.groups.disable && `disabled`
+                } ${formData && formData.groups.warning && `text-danger`}`}
+                data-bs-toggle='collapse'
+                role='button'
+                aria-expanded='false'
+                data-bs-target='#collapseExample2'
+                aria-controls='collapseExample2'
+              >
+                Выбрать класс
+              </p>
+            </div>
+            <div class='collapse' id='collapseExample2'>
+              <div className={`card border-0`}>
+                <div class='row row-cols-1 row-cols-md-auto g-1 justify-content-center card-body m-0 py-2'>
+                  {formData &&
+                    formData.groups.data.map(group => {
+                      return (
+                        <div className='col form-check mx-3 my-2'>
+                          <input
+                            className='form-check-input'
+                            type='radio'
+                            id={group._id}
+                            name='flexRadioDefault'
+                            aria-describedby='collapseExample'
+                            checked={group.active}
+                            onChange={() => {
+                              changeGroupState(group._id)
+                            }}
+                          />
+                          <label
+                            className='form-check-label text-muted'
+                            for={group._id}
+                          >
+                            {`Класс ${group.value}`}
+                          </label>
+                        </div>
+                      )
+                    })}
+                </div>
+              </div>
+            </div>
+          </Col>
+        </Row>
+        <Row className='align-items-center m-0 mt-5'>
+          <Col className='col-auto p-0 ms-auto'>
+            <button
+              className='btn btn-outline-secondary px-4'
+              type='submit'
+              onClick={() => {
+                setWarningsPage()
+              }}
+            >
+              Сохранить
+            </button>
+          </Col>
+        </Row>
+        {toast && (
+          <Row className='justify-content-center mt-4 '>
+            <Col className='col-auto p-0'>
+              <p class='text-center text-danger m-0'>{`Во время выполнения запроса произошло исключение: ${toast.data}`}</p>
+            </Col>
+          </Row>
+        )}
+      </Form>
     </Container>
   )
 }

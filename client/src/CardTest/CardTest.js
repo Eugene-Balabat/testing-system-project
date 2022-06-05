@@ -23,15 +23,21 @@ const CardTest = props => {
       </NavLink>
     )) ||
     (props.role === 'S' && !props.active && (
-      <Card
-        data={{
-          title: props.title,
-          description: props.description,
-          createdDate: props.createdDate,
-          closeDate: props.closeDate,
-          active: props.active
-        }}
-      />
+      <NavLink
+        to={`/test/${`R`}/${props.reportid}`}
+        className='m-0'
+        style={{ textDecoration: 'none', color: 'black' }}
+      >
+        <Card
+          data={{
+            title: props.title,
+            description: props.description,
+            createdDate: props.createdDate,
+            closeDate: props.closeDate,
+            active: props.active
+          }}
+        />
+      </NavLink>
     ))
   )
 }

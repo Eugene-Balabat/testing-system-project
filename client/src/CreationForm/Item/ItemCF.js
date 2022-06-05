@@ -74,7 +74,7 @@ const ItemCF = props => {
               class='btn btn-outline-secondary shadow-none border-0 rounded-circle p-1'
               onClick={event => {
                 event.preventDefault()
-                props.addOption(props.itemID, 'Текст ответа')
+                props.addOption(props.itemID)
               }}
             >
               <svg

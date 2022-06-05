@@ -31,6 +31,7 @@ const OptionCF = props => {
             props.warning && `border-danger`
           }`}
           type='text'
+          placeholder='Текст ответа'
           onChange={event =>
             props.updateOptionText(
               props.itemID,

@@ -39,6 +39,7 @@ app.use(errorMiddleware)
 async function start() {
   try {
     await mongoose.connect(config.get('mongoUri'))
+
     app.listen(port, () => {
       console.log(`Server is working on ${port} port...`)
     })
