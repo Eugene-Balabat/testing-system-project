@@ -1,9 +1,12 @@
-const express = require('express')
-const config = require('config')
-const mongoose = require('mongoose')
-const cors = require('cors')
-const cookieParser = require('cookie-parser')
-const errorMiddleware = require('./middlewares/error-middleware')
+import express from 'express'
+import config from 'config'
+import mongoose from 'mongoose'
+import cors from 'cors'
+import cookieParser from 'cookie-parser'
+import errorMiddleware from './middlewares/error-middleware.js'
+import getRoutes from './routes/get.routes.js'
+import postRoutes from './routes/post.routes.js'
+//const errorMiddleware = require('./middlewares/error-middleware.cjs')
 
 const app = express()
 
@@ -31,14 +34,17 @@ app.use(express.json({ extended: true }))
 app.use(cookieParser())
 app.use(cors(corsOptionsDelegate))
 
-app.use('/api/get', cookieParser(), require('./routes/get.routes'))
-app.use('/api/post', cookieParser(), require('./routes/post.routes'))
+//app.use('/api/get', cookieParser(), require('./routes/get.routes'))
+app.use('/api/get', cookieParser(), getRoutes)
+app.use('/api/post', cookieParser(), postRoutes)
+//app.use('/api/post', cookieParser(), require('./routes/post.routes'))
 
 app.use(errorMiddleware)
 
 async function start() {
   try {
     await mongoose.connect(config.get('mongoUri'))
+    mongoose.set('debug', true)
 
     app.listen(port, () => {
       console.log(`Server is working on ${port} port...`)

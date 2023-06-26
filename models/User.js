@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
 const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true, trim: true },
@@ -10,4 +10,4 @@ const userSchema = new mongoose.Schema({
   roles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role' }]
 })
 
-module.exports = mongoose.model('User', userSchema)
+export default mongoose.model('User', userSchema)

@@ -1,8 +1,8 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
 const answerSchema = new mongoose.Schema({
   answer: { type: String, trim: true, required: true },
   true: { type: Boolean, default: false }
 })
 
-module.exports = mongoose.model('Answer', answerSchema)
+export default mongoose.model('Answer', answerSchema)

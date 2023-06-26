@@ -11,6 +11,7 @@
     "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "author": "",
+  "type": "module",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",

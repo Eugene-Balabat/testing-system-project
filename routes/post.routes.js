@@ -1,6 +1,6 @@
-const { Router } = require('express')
-const postController = require('../controllers/post.controller')
-const authMiddleware = require('../middlewares/auth-middleware')
+import { Router } from 'express'
+import postController from '../controllers/post.controller.js'
+import authMiddleware from '../middlewares/auth-middleware.js'
 
 const router = Router()
 
@@ -13,4 +13,4 @@ router.post('/removeUsers', authMiddleware, postController.removeUsers)
 router.post('/updateUsers', authMiddleware, postController.updateUsers)
 router.post('/deleteTest', authMiddleware, postController.deleteTest)
 
-module.exports = router
+export default router

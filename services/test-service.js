@@ -1,9 +1,9 @@
-const ApiError = require('../exceptions/api-error')
-const Test = require('../models/Test')
-const Question = require('../models/Question')
-const Answer = require('../models/Answer')
-const Group = require('../models/Group')
-const Report = require('../models/Report')
+import ApiError from '../exceptions/api-error.js'
+import Test from '../models/Test.js'
+import Question from '../models/Question.js'
+import Answer from '../models/Answer.js'
+import Group from '../models/Group.js'
+import Report from '../models/Report.js'
 
 class TestService {
   async getTestData(id) {
@@ -97,4 +97,4 @@ class TestService {
   }
 }
 
-module.exports = new TestService()
+export default new TestService()

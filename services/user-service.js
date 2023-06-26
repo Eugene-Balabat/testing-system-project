@@ -1,15 +1,19 @@
-const bcrypt = require('bcryptjs/dist/bcrypt')
-const User = require('../models/User')
-const Role = require('../models/Role')
-const tokenService = require('./token-service')
-const UserDto = require('../dtos/user-dto')
-const ApiError = require('../exceptions/api-error')
-const nodemailer = require('nodemailer')
-const config = require('../config/default.json')
+import bcrypt from 'bcryptjs'
+import User from '../models/User.js'
+import Role from '../models/Role.js'
+import tokenService from './token-service.js'
+import UserDto from '../dtos/user-dto.js'
+import ApiError from '../exceptions/api-error.js'
+import nodemailer from 'nodemailer'
+import config from '../config/default.json' assert { type: 'json' }
+import mongoose from 'mongoose'
+
+//const bcrypt = require('bcryptjs/dist/bcrypt')
 
 class UserService {
   async login(email, password, remember) {
     const user = await User.findOne({ email })
+
     const roles = []
 
     if (!user)
@@ -105,4 +109,4 @@ class UserService {
   }
 }
 
-module.exports = new UserService()
+export default new UserService()

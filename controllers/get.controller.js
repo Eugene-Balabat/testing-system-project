@@ -1,11 +1,11 @@
-const Test = require('../models/Test')
-const User = require('../models/User')
-const userService = require('../services/user-service')
-const testService = require('../services/test-service')
-const ApiError = require('../exceptions/api-error')
-const Group = require('../models/Group')
-const Report = require('../models/Report')
-const Role = require('../models/Role')
+import Test from '../models/Test.js'
+import User from '../models/User.js'
+import userService from '../services/user-service.js'
+import testService from '../services/test-service.js'
+import ApiError from '../exceptions/api-error.js'
+import Group from '../models/Group.js'
+import Report from '../models/Report.js'
+import Role from '../models/Role.js'
 
 class GetController {
   async getUsers(req, res, next) {
@@ -327,4 +327,4 @@ class GetController {
   }
 }
 
-module.exports = new GetController()
+export default new GetController()

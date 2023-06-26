@@ -25,6 +25,7 @@ const Login = () => {
         password: inputs.passwordI,
         remember: inputs.rememberI
       })
+      console.log(response)
 
       console.log(`Cookie ${Cookies.get('refreshToken')}`)
       console.log(`Response ${response}`)

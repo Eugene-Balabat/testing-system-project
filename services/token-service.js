@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken')
-const config = require('../config/default.json')
-const Token = require('../models/Token')
+import jwt from 'jsonwebtoken'
+import config from '../config/default.json' assert { type: 'json' }
+import Token from '../models/Token.js'
 
 class TokenService {
   generateTokens(payload) {
@@ -52,4 +52,4 @@ class TokenService {
   }
 }
 
-module.exports = new TokenService()
+export default new TokenService()

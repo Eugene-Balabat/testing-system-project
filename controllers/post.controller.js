@@ -1,13 +1,15 @@
-const ApiError = require('../exceptions/api-error')
-const Token = require('../models/Token')
-const User = require('../models/User')
-const Question = require('../models/Question')
-const Test = require('../models/Test')
-const userService = require('../services/user-service')
-const bcrypt = require('bcryptjs/dist/bcrypt')
-const Answer = require('../models/Answer')
-const Report = require('../models/Report')
-const testService = require('../services/test-service')
+import ApiError from '../exceptions/api-error.js'
+import Token from '../models/Token.js'
+import User from '../models/User.js'
+import Question from '../models/Question.js'
+import Test from '../models/Test.js'
+import userService from '../services/user-service.js'
+import bcrypt from 'bcryptjs'
+import Answer from '../models/Answer.js'
+import Report from '../models/Report.js'
+import testService from '../services/test-service.js'
+
+//const bcrypt = require('bcryptjs/dist/bcrypt')
 
 class PostController {
   async authUser(req, res, next) {
@@ -260,4 +262,4 @@ class PostController {
   }
 }
 
-module.exports = new PostController()
+export default new PostController()
